@@ -1,0 +1,6 @@
+organizationUrl: https://dev.azure.com/mariuss2007
+project: "test"
+repositories:
+  - name: YamlPipelineTest4
+  - name: testnewreposshit
+  - name: dothatshitdoit
