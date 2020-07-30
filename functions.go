@@ -44,11 +44,11 @@ func InitAllRepos(remoteUrl string,username string, password string) {
 	if err != nil {
 		panic(err)
 	}
-	status, err := w.Status()
+	_, err = w.Status()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(status)
+	//fmt.Println(status)
 	_, err = w.Commit(COMMITMSG, &gt.CommitOptions{
 		Author: &object.Signature{
 			Email: username,

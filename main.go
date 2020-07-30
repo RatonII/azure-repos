@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"sync"
 	"time"
-
+	"golang.org/x/crypto/ssh/terminal"
 	//"sync"
 	"log"
 )
@@ -17,7 +17,9 @@ import (
 
 
 func main() {
-
+	fmt.Printf("Please type the personal access token: ")
+	password, _ := terminal.ReadPassword(0)
+	personalAccessToken := fmt.Sprintf("%s", password)
 	var wg sync.WaitGroup
 	runtime.GOMAXPROCS(4)
 	reposFile := flag.String("file", "", "Add a config file yaml with all the pipelines contains")
@@ -28,7 +30,7 @@ func main() {
 		organizationUrl := r.getConf(reposFile).OrganizationUrl
 		projname := r.getConf(reposFile).Project
 		username := "mariuss2007@gmail.com"
-		personalAccessToken := "xre5yhde563fkwpawen7nlrjilocnwmdj35znbfu6uzak26v5p4q" // todo: replace value with your PAT
+		//personalAccessToken := "xre5yhde563fkwpawen7nlrjilocnwmdj35znbfu6uzak26v5p4q" // todo: replace value with your PAT
 		// Create a connection to your organization
 		connection := azuredevops.NewPatConnection(*organizationUrl, personalAccessToken)
 
