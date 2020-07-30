@@ -41,22 +41,14 @@ func main() {
 		}
 		// Get All existing repos for comparation
 		existingrepos := GetAllRepos(gitClient,ctx,projname)
-		newrepos:= make([]string,len(repositories))
+
+		repoids := make([]string,len(repositories))
 		for i, repos := range repositories {
 			if Find(existingrepos,*repos.Name) == false {
 				wg.Add(1)
-				newrepos[i] = *repos.Name
-				go CreateRepos(gitClient,ctx,username,personalAccessToken,projname,repos.Name,repos.Branches,&wg)
-
-		wg.Wait()
-			}
-		}
-		repoids := make([]string,len(newrepos))
-		fmt.Println(newrepos);
-		for i, repo := range newrepos {
-				wg.Add(1)
-				go GetBranchesId(gitClient, ctx,projname,&repo, repoids, i, &wg)
+				go CreateRepos(gitClient, ctx, username, personalAccessToken, projname, repos.Name, repos.Branches,repoids,i, &wg)
 			wg.Wait()
+			}
 		}
 		fmt.Println(repoids)
 		//policyClient, err := policy.NewClient(ctx, connection)

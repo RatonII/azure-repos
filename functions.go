@@ -32,7 +32,6 @@ func InitAllRepos(remoteUrl string,username string, password string) {
 	if err != nil {
 		panic(err)
 	}
-	//https://mariuss2007@dev.azure.com/mariuss2007/test/_git/YamlPipelineTest4
 	_, err = d.CreateRemote(&config.RemoteConfig{
 		Name: REMOTENAME,
 		URLs: []string{remoteUrl},
@@ -89,7 +88,7 @@ func InitAllRepos(remoteUrl string,username string, password string) {
 func GetBranchesId(client git.Client,ctx context.Context,
 					project *string,repo *string,reposids []string, i int,wg *sync.WaitGroup)  {
 	repod, err := client.GetRepository(ctx,git.GetRepositoryArgs{
-		RepositoryId: repo ,
+		RepositoryId: repo,
 		Project:      project,
 	})
 	if err != nil {
@@ -143,6 +142,7 @@ func CreateBranch(client git.Client,ctx context.Context,
 func CreateRepos(client git.Client,ctx context.Context,
 				username string, password string,
 				project *string, name *string,branches []string,
+				reposids []string, i int,
 				wg *sync.WaitGroup) {
 	defer wg.Done()
 	repos, err := client.CreateRepository(ctx, git.CreateRepositoryArgs{
@@ -154,6 +154,7 @@ func CreateRepos(client git.Client,ctx context.Context,
 	if err != nil {
 		log.Fatalf("There was some error creating the repo %v", err)
 	}
+	reposids[i] = fmt.Sprintf("%s",*repos.Id)
 	InitAllRepos(*repos.RemoteUrl,username,password)
 	CreateBranch(client,ctx,project,name,GetCommitIdBranch(client,ctx,project,name),branches)
 	fmt.Printf("The repo %s  was created with the url for clone is %s\n", *repos.Name, *repos.SshUrl)
