@@ -11,6 +11,7 @@ type Repositories []Repo
 
 type Repo struct {
 	Name *string		`yaml:"name"`
+	Branches []string	`yaml:"branches"`
 }
 
 type Settings struct {

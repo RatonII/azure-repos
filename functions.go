@@ -116,8 +116,7 @@ func GetAllRepos(client git.Client,ctx context.Context,
 }
 
 func CreateBranch(client git.Client,ctx context.Context,
-					project *string,repo *string,newobjectid *string)  {
-	branches := []string{"refs/heads/dev","refs/heads/test"}
+					project *string,repo *string,newobjectid *string, branches []string)  {
 	oldobjectid := "0000000000000000000000000000000000000000"
 	islocked := false
 	for _, branch := range  branches {
@@ -143,7 +142,8 @@ func CreateBranch(client git.Client,ctx context.Context,
 
 func CreateRepos(client git.Client,ctx context.Context,
 				username string, password string,
-				project *string, name *string,wg *sync.WaitGroup) {
+				project *string, name *string,branches []string,
+				wg *sync.WaitGroup) {
 	defer wg.Done()
 	repos, err := client.CreateRepository(ctx, git.CreateRepositoryArgs{
 		GitRepositoryToCreate: &git.GitRepositoryCreateOptions{
@@ -155,7 +155,7 @@ func CreateRepos(client git.Client,ctx context.Context,
 		log.Fatalf("There was some error creating the repo %v", err)
 	}
 	InitAllRepos(*repos.RemoteUrl,username,password)
-	CreateBranch(client,ctx,project,name,GetCommitIdBranch(client,ctx,project,name))
+	CreateBranch(client,ctx,project,name,GetCommitIdBranch(client,ctx,project,name),branches)
 	fmt.Printf("The repo %s  was created with the url for clone is %s\n", *repos.Name, *repos.SshUrl)
 
 }

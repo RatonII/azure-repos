@@ -46,7 +46,7 @@ func main() {
 			if Find(existingrepos,*repos.Name) == false {
 				wg.Add(1)
 				newrepos[i] = *repos.Name
-				go CreateRepos(gitClient,ctx,username,personalAccessToken,projname,repos.Name,&wg)
+				go CreateRepos(gitClient,ctx,username,personalAccessToken,projname,repos.Name,repos.Branches,&wg)
 
 		wg.Wait()
 			}

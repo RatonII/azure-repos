@@ -2,5 +2,18 @@ organizationUrl: https://dev.azure.com/mariuss2007
 project: "test"
 repositories:
   - name: YamlPipelineTest4
+    branches:
+      - "refs/heads/dev"
+      - "refs/heads/test"
+    branchpolicies:
   - name: testnewreposshit
+    branches:
+      - "refs/heads/dev"
+      - "refs/heads/test"
+    branchpolicies:
   - name: dothatshitdoit
+    branches:
+      - "refs/heads/dev"
+      - "refs/heads/test"
+    branchpolicies:
+
