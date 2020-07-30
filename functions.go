@@ -86,6 +86,21 @@ func InitAllRepos(remoteUrl string,username string, password string) {
 	}
 }
 
+func GetBranchesId(client git.Client,ctx context.Context,
+					project *string,repo *string,reposids []string, i int,wg *sync.WaitGroup)  {
+	repod, err := client.GetRepository(ctx,git.GetRepositoryArgs{
+		RepositoryId: repo ,
+		Project:      project,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("repository %s with repository id %s\n",*repod.Name,*repod.Id)
+	reposids[i] = fmt.Sprintf("%s",*repod.Id)
+	defer wg.Done()
+	
+}
+
 func GetAllRepos(client git.Client,ctx context.Context,
 	project *string)  []string {
 	responseValue, err := client.GetRepositories(ctx, git.GetRepositoriesArgs{Project: project})

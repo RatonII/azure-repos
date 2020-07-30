@@ -4,10 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/microsoft/azure-devops-go-api/azuredevops"
 	"github.com/microsoft/azure-devops-go-api/azuredevops/git"
-	"github.com/microsoft/azure-devops-go-api/azuredevops/policy"
 	"runtime"
 	"sync"
 	"time"
@@ -43,80 +41,79 @@ func main() {
 		}
 		// Get All existing repos for comparation
 		existingrepos := GetAllRepos(gitClient,ctx,projname)
-		for _, repos := range repositories {
+		newrepos:= make([]string,len(repositories))
+		for i, repos := range repositories {
 			if Find(existingrepos,*repos.Name) == false {
 				wg.Add(1)
+				newrepos[i] = *repos.Name
 				go CreateRepos(gitClient,ctx,username,personalAccessToken,projname,repos.Name,&wg)
+
 		wg.Wait()
 			}
 		}
-		policyClient, err := policy.NewClient(ctx, connection)
-		if err != nil {
-			log.Fatal(err)
+		repoids := make([]string,len(newrepos))
+		fmt.Println(newrepos);
+		for i, repo := range newrepos {
+				wg.Add(1)
+				go GetBranchesId(gitClient, ctx,projname,&repo, repoids, i, &wg)
+			wg.Wait()
 		}
-		isdeleted := false
-		isenabled := true
-		isblocking := false
-		policyuuid, err := uuid.Parse("fa4e907d-c16b-4a4c-9dfa-4906e5d171dd")
-		if err != nil {
-			log.Fatal(err)
-		}
-		repositoryid, err := uuid.Parse("f4da5e90-de5b-4ffa-99e5-fc4dfc36f6ae")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-
-		repn := "dothatshitdoit"
-		repod, err := gitClient.GetRepository(ctx,git.GetRepositoryArgs{
-			RepositoryId: &repn ,
-			Project:      projname,
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("repository %s with repository id %s\n",*repod.Name,*repod.Id)
-		//t := time.Now().Format("2020-07-30T11:19:36.4966665")
-		t, err := time.Parse(time.RFC3339,time.Now().Format(time.RFC3339))
-		//println(t.String())
+		fmt.Println(repoids)
+		//policyClient, err := policy.NewClient(ctx, connection)
 		//if err != nil {
 		//	log.Fatal(err)
 		//}
-		fmt.Println(t)
-		pol, err := policyClient.CreatePolicyConfiguration(ctx,policy.CreatePolicyConfigurationArgs{
-			Configuration:   &policy.PolicyConfiguration{
-				Type:        &policy.PolicyTypeRef{
-				Id:          &policyuuid,
-				},
-				CreatedDate: &azuredevops.Time{Time: t},
-				IsBlocking:  &isblocking,
-				IsDeleted:   &isdeleted,
-				IsEnabled:   &isenabled,
-				Settings:	Settings{
-					CreatorVoteCounts:    	false,
-					AllowDownvotes:			false,
-					BlockLastPusherVote:	true,
-					AllowNoFastForward:		false,
-					AllowRebase: 			true,
-					AllowRebaseMerge: 		false,
-					AllowSquash:			true,
-					RequiredReviewerIds: 	[]string{"4d49214c-c791-6e27-9d74-bcce48230683"},
-					MinimumApproverCount: 	1,
-					ResetOnSourcePush:    	true,
-					Scope:                []Scope{{
-						RepositoryId: repositoryid,
-						RefName:      "refs/heads/dev",
-						MatchKind:    "exact",
-					}},
-				},
-
-			},
-			Project:         projname,
-		})
+		//isdeleted := false
+		//isenabled := true
+		//isblocking := false
+		//policyuuid, err := uuid.Parse("fa4e907d-c16b-4a4c-9dfa-4906e5d171dd")
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//repositoryid, err := uuid.Parse("f4da5e90-de5b-4ffa-99e5-fc4dfc36f6ae")
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//t := time.Now().Format("2020-07-30T11:19:36.4966665")
+		t, err := time.Parse(time.RFC3339,time.Now().Format(time.RFC3339))
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("policy name is %s",pol.Settings)
+		println(t.String())
+		//pol, err := policyClient.CreatePolicyConfiguration(ctx,policy.CreatePolicyConfigurationArgs{
+		//	Configuration:   &policy.PolicyConfiguration{
+		//		Type:        &policy.PolicyTypeRef{
+		//		Id:          &policyuuid,
+		//		},
+		//		CreatedDate: &azuredevops.Time{Time: t},
+		//		IsBlocking:  &isblocking,
+		//		IsDeleted:   &isdeleted,
+		//		IsEnabled:   &isenabled,
+		//		Settings:	Settings{
+		//			CreatorVoteCounts:    	false,
+		//			AllowDownvotes:			false,
+		//			BlockLastPusherVote:	true,
+		//			AllowNoFastForward:		false,
+		//			AllowRebase: 			true,
+		//			AllowRebaseMerge: 		false,
+		//			AllowSquash:			true,
+		//			RequiredReviewerIds: 	[]string{"4d49214c-c791-6e27-9d74-bcce48230683"},
+		//			MinimumApproverCount: 	1,
+		//			ResetOnSourcePush:    	true,
+		//			Scope:                []Scope{{
+		//				RepositoryId: repositoryid,
+		//				RefName:      "refs/heads/dev",
+		//				MatchKind:    "exact",
+		//			}},
+		//		},
+		//
+		//	},
+		//	Project:         projname,
+		//})
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//fmt.Printf("policy name is %s",pol.Settings)
 	}else {
 		log.Fatalln("Please specify a config file for the repositories with the argument --file")
 	}
