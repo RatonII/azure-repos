@@ -6,8 +6,12 @@ import (
 	gt "github.com/go-git/go-git"
 	"github.com/go-git/go-git/config"
 	"github.com/go-git/go-git/plumbing/object"
+	"github.com/google/uuid"
+	"github.com/microsoft/azure-devops-go-api/azuredevops"
 	"github.com/microsoft/azure-devops-go-api/azuredevops/git"
 	"github.com/go-git/go-git/plumbing/transport/http"
+	"github.com/microsoft/azure-devops-go-api/azuredevops/policy"
+	"github.com/otiai10/copy"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -21,14 +25,20 @@ const (
 	REMOTENAME = "origin"
 	ADDPATH    = "README.md"
 	COMMITMSG  = "Adding README.md"
+	MIN_NUMBER_OF_REWIERES_DISPLAY_NAME = "Minimum number of reviewers"
+	MIN_NUMBER_OF_REWIERES_UUID = "fa4e907d-c16b-4a4c-9dfa-4906e5d171dd"
 )
 
-func InitAllRepos(remoteUrl string,username string, password string) {
-	_, err := gt.PlainInit(PATH,false)
+func InitAllRepos(remoteUrl string,username string, password string,i int) {
+	err := copy.Copy(PATH,fmt.Sprintf("%s%d",PATH,i))
 	if err != nil {
 		panic(err)
 	}
-	d, err := gt.PlainOpen(PATH)
+	_, err = gt.PlainInit(fmt.Sprintf("%s%d",PATH,i),false)
+	if err != nil {
+		panic(err)
+	}
+	d, err := gt.PlainOpen(fmt.Sprintf("%s%d",PATH,i))
 	if err != nil {
 		panic(err)
 	}
@@ -79,7 +89,7 @@ func InitAllRepos(remoteUrl string,username string, password string) {
 			panic(err)
 		}
 	}
-	err = os.RemoveAll(fmt.Sprintf("%s/.git",PATH))
+	err = os.RemoveAll(fmt.Sprintf("%s%d",PATH,i))
 	if err != nil {
 		panic(err)
 	}
@@ -114,8 +124,34 @@ func GetAllRepos(client git.Client,ctx context.Context,
 	return existingrepos
 }
 
+
+func CreateRepos(client git.Client,ctx context.Context,
+	username string, password string,
+	project *string, name *string,branches []string,
+	reposids []PolicyRepoIdAndBranch, i int,
+	wg *sync.WaitGroup) {
+	defer wg.Done()
+	repos, err := client.CreateRepository(ctx, git.CreateRepositoryArgs{
+		GitRepositoryToCreate: &git.GitRepositoryCreateOptions{
+			Name: name,
+		},
+		Project: project,
+	})
+	if err != nil {
+		log.Fatalf("There was some error creating the repo %v", err)
+	}
+	reposids[i] = PolicyRepoIdAndBranch{
+		RepoId: *repos.Id,
+		Branches: branches,
+	}
+	InitAllRepos(*repos.RemoteUrl,username,password,i)
+	CreateBranch(client,ctx,project,name,GetCommitIdBranch(client,ctx,project,name),branches)
+	fmt.Printf("The repo %s  was created with the url for clone is %s\n", *repos.Name, *repos.SshUrl)
+}
+
 func CreateBranch(client git.Client,ctx context.Context,
-					project *string,repo *string,newobjectid *string, branches []string)  {
+					project *string,repo *string,newobjectid *string,
+					branches []string)  {
 	oldobjectid := "0000000000000000000000000000000000000000"
 	islocked := false
 	for _, branch := range  branches {
@@ -134,32 +170,11 @@ func CreateBranch(client git.Client,ctx context.Context,
 			log.Fatalf("There was some error creating the tag %v", err)
 		}
 		for _, branch := range (*branchresponse) {
-			fmt.Printf("The branch %s  was created and it's success is  %v\n", *branch.Name, *branch.UpdateStatus)
+			fmt.Printf("The branch %s from  repo %v was created and it's success status is  %v\n", *branch.Name,*branch.RepositoryId, *branch.UpdateStatus)
 		}
 	}
 }
 
-func CreateRepos(client git.Client,ctx context.Context,
-				username string, password string,
-				project *string, name *string,branches []string,
-				reposids []string, i int,
-				wg *sync.WaitGroup) {
-	defer wg.Done()
-	repos, err := client.CreateRepository(ctx, git.CreateRepositoryArgs{
-		GitRepositoryToCreate: &git.GitRepositoryCreateOptions{
-			Name: name,
-		},
-		Project: project,
-	})
-	if err != nil {
-		log.Fatalf("There was some error creating the repo %v", err)
-	}
-	reposids[i] = fmt.Sprintf("%s",*repos.Id)
-	InitAllRepos(*repos.RemoteUrl,username,password)
-	CreateBranch(client,ctx,project,name,GetCommitIdBranch(client,ctx,project,name),branches)
-	fmt.Printf("The repo %s  was created with the url for clone is %s\n", *repos.Name, *repos.SshUrl)
-
-}
 
 func GetCommitIdBranch(client git.Client,ctx context.Context,
 					   project *string,repo *string)  *string{
@@ -174,6 +189,78 @@ func GetCommitIdBranch(client git.Client,ctx context.Context,
 	}
 	fmt.Printf("The branch %s  was created and it's last commit  is  %v\n", *branch.Name,*branch.Commit.CommitId)
 	return branch.Commit.CommitId
+}
+
+func CreateMinReviewersPolicy(client policy.Client,ctx context.Context,
+							  repoid uuid.UUID, project *string,
+							  branches []string,wg *sync.WaitGroup)  {
+	defer wg.Done()
+	isdeleted := false
+	isenabled := true
+	isblocking := false
+	minnrofreviewerdn := MIN_NUMBER_OF_REWIERES_DISPLAY_NAME
+	minnrofreviewersuuid, err := uuid.Parse(MIN_NUMBER_OF_REWIERES_UUID)
+	//settings := SettingsMinNrReviewers{
+	//			AllowDownvotes:       false,
+	//			BlockLastPusherVote:  true,
+	//			CreatorVoteCounts:    false,
+	//			//AllowNoFastForward:   "false",
+	//			//AllowRebaseMerge:	  "false",
+	//			//AllowRebase:          "true",
+	//			//AllowSquash:          "true",
+	//			//RequiredReviewerIds:  []string{"4d49214c-c791-6e27-9d74-bcce48230683"},
+	//			MinimumApproverCount: 1,
+	//			ResetOnSourcePush:    true,
+	//			Scope: []Scope{{
+	//				RepositoryId: repoid,
+	//				RefName:      "refs/heads/dev",
+	//				MatchKind:    "exact",
+	//			}},
+	//		}
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	t, err := time.Parse(time.RFC3339,time.Now().Format(time.RFC3339))
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _,branch := range branches {
+		pol, err := client.CreatePolicyConfiguration(ctx, policy.CreatePolicyConfigurationArgs{
+			Configuration: &policy.PolicyConfiguration{
+				Type: &policy.PolicyTypeRef{
+					DisplayName: &minnrofreviewerdn,
+					Id:          &minnrofreviewersuuid,
+				},
+				CreatedDate: &azuredevops.Time{Time: t},
+				IsBlocking:  &isblocking,
+				IsDeleted:   &isdeleted,
+				IsEnabled:   &isenabled,
+				Settings: SettingsMinNrReviewers{
+					AllowDownvotes:      false,
+					BlockLastPusherVote: true,
+					CreatorVoteCounts:   false,
+					//AllowNoFastForward:   "false",
+					//AllowRebaseMerge:	  "false",
+					//AllowRebase:          "true",
+					//AllowSquash:          "true",
+					//RequiredReviewerIds:  []string{"4d49214c-c791-6e27-9d74-bcce48230683"},
+					MinimumApproverCount: 1,
+					ResetOnSourcePush:    true,
+					Scope: []Scope{{
+						RepositoryId: repoid,
+						RefName:      branch,
+						MatchKind:    "exact",
+					}},
+				},
+			},
+			Project: project,
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("policy name is %v\n", pol)
+	}
 }
 
 func (c *ReposConfig) getConf(ReposFile *string) *ReposConfig {
