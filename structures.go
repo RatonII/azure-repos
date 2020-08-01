@@ -11,47 +11,35 @@ type ReposConfig struct {
 }
 
 type Repo struct {
-	Name *string		`yaml:"name"`
-	Branches []string	`yaml:"branches"`
+	Name *string									`yaml:"name"`
+	Branches []string								`yaml:"branches"`
+	BranchPoliciesSettings SettingsPolicy	`yaml:"branchPoliciesSettings"`
 }
 
-type SettingsMinNrReviewers struct {
-	AllowDownvotes			bool
-	BlockLastPusherVote		bool
-	CreatorVoteCounts 		bool
-	MinimumApproverCount 	int
-	ResetOnSourcePush		bool
-	Scope 					[]Scope
-}
-
-type SettingsWorkItemLinking struct {
-	Scope 					[]Scope
-}
-
-type SettingsCommentRequirments struct {
-	Scope 					[]Scope
-}
-
-type SettingsRequireMergeStrategy struct {
-	AllowNoFastForward		bool
-	AllowRebase 			bool
-	AllowRebaseMerge 		bool
-	AllowSquash 			bool
-	Scope 					[]Scope
-}
-
-type SettingsRequiredReviewers struct {
-	CreatorVoteCounts 		bool
-	MinimumApproverCount	int
-	Message 				string
-	RequiredReviewerIds 	[]string
-	Scope 					[]Scope
+type SettingsBuild struct {
+	ManualQueueOnly			 bool
+	QueueOnSourceUpdateOnly	 bool
 }
 
 type Scope struct {
 	RepositoryId 	uuid.UUID `json:"repositoryId"`
 	RefName 		string		`json:"refName"`
 	MatchKind 		string		`json:"matchKind"`
+}
+
+type SettingsPolicy struct {
+	AllowDownvotes			bool
+	BlockLastPusherVote		bool
+	CreatorVoteCounts 		bool
+	MinimumApproverCount 	int
+	ResetOnSourcePush		bool
+	AllowNoFastForward		bool
+	AllowRebase 			bool
+	AllowRebaseMerge 		bool
+	AllowSquash 			bool
+	Message 				string
+	RequiredReviewerIds 	[]string
+	Scope 					[]Scope
 }
 
 type PolicyRepoIdAndBranch struct {

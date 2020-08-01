@@ -5,7 +5,11 @@ repositories:
     branches:
       - "refs/heads/dev"
       - "refs/heads/test"
-    branchpolicies:
+      - "refs/heads/qa"
+    branchPoliciesSettings:
+      minNrReviewers:
+
+
   - name: testnewreposshit
     branches:
       - "refs/heads/dev"

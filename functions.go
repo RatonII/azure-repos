@@ -27,6 +27,14 @@ const (
 	COMMITMSG  = "Adding README.md"
 	MIN_NUMBER_OF_REWIERES_DISPLAY_NAME = "Minimum number of reviewers"
 	MIN_NUMBER_OF_REWIERES_UUID = "fa4e907d-c16b-4a4c-9dfa-4906e5d171dd"
+	WORK_ITEM_LINKING_DISPLAY_NAME = "Work item linking"
+	WORK_ITEM_LINKING_DISPLAY_UUID = "40e92b44-2fe1-4dd6-b3d8-74a9c21d0c6e"
+	COMMENT_REQUIREMENTS_DISPLAY_NAME = "Comment requirements"
+	COMMENT_REQUIREMENTS_UUID = "c6a1889d-b943-4856-b76f-9e46bb6b0df2"
+	REQUIRE_A_MERGE_STRATEGY_DISPLAY_NAME = "Require a merge strategy"
+	REQUIRE_A_MERGE_STRATEGY_UUID =	 "fa4e907d-c16b-4a4c-9dfa-4916e5d171ab"
+	REQUIRED_REVIEWERS_DISPLAY_NAME = "Required reviewers"
+	REQUIRED_REVIEWERS_UUID = "fd2167ab-b0be-447a-8ec8-39368250530e"
 )
 
 func InitAllRepos(remoteUrl string,username string, password string,i int) {
@@ -191,32 +199,69 @@ func GetCommitIdBranch(client git.Client,ctx context.Context,
 	return branch.Commit.CommitId
 }
 
-func CreateMinReviewersPolicy(client policy.Client,ctx context.Context,
-							  repoid uuid.UUID, project *string,
-							  branches []string,wg *sync.WaitGroup)  {
+//func CreateMinReviewersPolicy(client policy.Client,ctx context.Context,
+//							  repoid uuid.UUID, project *string,
+//							  branches []string,wg *sync.WaitGroup)  {
+//	defer wg.Done()
+//	isdeleted := false
+//	isenabled := true
+//	isblocking := false
+//	minnrofreviewerdn := MIN_NUMBER_OF_REWIERES_DISPLAY_NAME
+//	minnrofreviewersuuid, err := uuid.Parse(MIN_NUMBER_OF_REWIERES_UUID)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//
+//	t, err := time.Parse(time.RFC3339,time.Now().Format(time.RFC3339))
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	for _,branch := range branches {
+//		pol, err := client.CreatePolicyConfiguration(ctx, policy.CreatePolicyConfigurationArgs{
+//			Configuration: &policy.PolicyConfiguration{
+//				Type: &policy.PolicyTypeRef{
+//					DisplayName: &minnrofreviewerdn,
+//					Id:          &minnrofreviewersuuid,
+//				},
+//				CreatedDate: &azuredevops.Time{Time: t},
+//				IsBlocking:  &isblocking,
+//				IsDeleted:   &isdeleted,
+//				IsEnabled:   &isenabled,
+//				Settings: SettingsMinNrReviewers{
+//					AllowDownvotes:      false,
+//					BlockLastPusherVote: true,
+//					CreatorVoteCounts:   false,
+//					//AllowNoFastForward:   "false",
+//					//AllowRebaseMerge:	  "false",
+//					//AllowRebase:          "true",
+//					//AllowSquash:          "true",
+//					//RequiredReviewerIds:  []string{"4d49214c-c791-6e27-9d74-bcce48230683"},
+//					MinimumApproverCount: 1,
+//					ResetOnSourcePush:    true,
+//					Scope: []Scope{{
+//						RepositoryId: repoid,
+//						RefName:      branch,
+//						MatchKind:    "exact",
+//					}},
+//				},
+//			},
+//			Project: project,
+//		})
+//		if err != nil {
+//			log.Fatal(err)
+//		}
+//		fmt.Printf("policy name is %v\n", pol)
+//	}
+//}
+func CreateBranchPolicy(client policy.Client,ctx context.Context,
+					repoid uuid.UUID, project *string,
+					branches []string,typedn string,
+					typeuuid string,settings SettingsPolicy,
+					isBlocking bool,wg *sync.WaitGroup)  {
 	defer wg.Done()
 	isdeleted := false
 	isenabled := true
-	isblocking := false
-	minnrofreviewerdn := MIN_NUMBER_OF_REWIERES_DISPLAY_NAME
-	minnrofreviewersuuid, err := uuid.Parse(MIN_NUMBER_OF_REWIERES_UUID)
-	//settings := SettingsMinNrReviewers{
-	//			AllowDownvotes:       false,
-	//			BlockLastPusherVote:  true,
-	//			CreatorVoteCounts:    false,
-	//			//AllowNoFastForward:   "false",
-	//			//AllowRebaseMerge:	  "false",
-	//			//AllowRebase:          "true",
-	//			//AllowSquash:          "true",
-	//			//RequiredReviewerIds:  []string{"4d49214c-c791-6e27-9d74-bcce48230683"},
-	//			MinimumApproverCount: 1,
-	//			ResetOnSourcePush:    true,
-	//			Scope: []Scope{{
-	//				RepositoryId: repoid,
-	//				RefName:      "refs/heads/dev",
-	//				MatchKind:    "exact",
-	//			}},
-	//		}
+	tuuid, err := uuid.Parse(typeuuid)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -225,43 +270,28 @@ func CreateMinReviewersPolicy(client policy.Client,ctx context.Context,
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _,branch := range branches {
-		pol, err := client.CreatePolicyConfiguration(ctx, policy.CreatePolicyConfigurationArgs{
-			Configuration: &policy.PolicyConfiguration{
-				Type: &policy.PolicyTypeRef{
-					DisplayName: &minnrofreviewerdn,
-					Id:          &minnrofreviewersuuid,
-				},
-				CreatedDate: &azuredevops.Time{Time: t},
-				IsBlocking:  &isblocking,
-				IsDeleted:   &isdeleted,
-				IsEnabled:   &isenabled,
-				Settings: SettingsMinNrReviewers{
-					AllowDownvotes:      false,
-					BlockLastPusherVote: true,
-					CreatorVoteCounts:   false,
-					//AllowNoFastForward:   "false",
-					//AllowRebaseMerge:	  "false",
-					//AllowRebase:          "true",
-					//AllowSquash:          "true",
-					//RequiredReviewerIds:  []string{"4d49214c-c791-6e27-9d74-bcce48230683"},
-					MinimumApproverCount: 1,
-					ResetOnSourcePush:    true,
-					Scope: []Scope{{
-						RepositoryId: repoid,
-						RefName:      branch,
-						MatchKind:    "exact",
-					}},
-				},
+	pol, err := client.CreatePolicyConfiguration(ctx, policy.CreatePolicyConfigurationArgs{
+		Configuration: &policy.PolicyConfiguration{
+			Type: &policy.PolicyTypeRef{
+				DisplayName: &typedn,
+				Id:          &tuuid,
 			},
-			Project: project,
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("policy name is %v\n", pol)
+			CreatedDate: &azuredevops.Time{Time: t},
+			IsBlocking:  &isBlocking,
+			IsDeleted:   &isdeleted,
+			IsEnabled:   &isenabled,
+			Settings: settings,
+		},
+		Project: project,
+	})
+	if err != nil {
+		log.Fatal(err)
 	}
+	fmt.Printf("policy with name %s with settings %v was created\n", *pol.Type.DisplayName,pol.Settings)
+	//defer wg.Done()
 }
+
+
 
 func (c *ReposConfig) getConf(ReposFile *string) *ReposConfig {
 

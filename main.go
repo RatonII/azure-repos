@@ -11,19 +11,18 @@ import (
 	"github.com/microsoft/azure-devops-go-api/azuredevops/policy"
 	"golang.org/x/crypto/ssh/terminal"
 
+	//"golang.org/x/crypto/ssh/terminal"
 	//WARNING: Dont use go get for this library use git
 	"github.com/microsoft/azure-devops-go-api/azuredevops"
 	"github.com/microsoft/azure-devops-go-api/azuredevops/git"
 	"runtime"
 	"sync"
-	"time"
-	//"sync"
 	"log"
 )
 
 func main() {
 	var wg sync.WaitGroup
-
+	var wf sync.WaitGroup
 	runtime.GOMAXPROCS(4)
 	reposFile := flag.String("file", "", "Add a config file yaml with all the pipelines contains")
 	user := flag.String("user", "", "Add username(email) that you want to connect with")
@@ -73,9 +72,51 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		wg.Add(len(repoids))
+
+		wg.Add(len(repoids)*5) //5 represents the number of times we run CreateBranchPolicy for differents policies types
 		for _, needs := range repoids {
-			go CreateMinReviewersPolicy(policyClient,ctx,needs.RepoId,projname,needs.Branches,&wg)
+			wf.Add(len(needs.Branches))
+			for _,branch := range needs.Branches {
+				settings := SettingsPolicy{
+					AllowDownvotes:      false,
+					BlockLastPusherVote: true,
+					CreatorVoteCounts:   false,
+					MinimumApproverCount: 1,
+					ResetOnSourcePush:    	true,
+					AllowNoFastForward:		false,
+					AllowRebase:			true,
+					AllowRebaseMerge: 		false,
+					AllowSquash: 			true,
+					RequiredReviewerIds: 	[]string{"4d49214c-c791-6e27-9d74-bcce48230683"},
+					Scope: []Scope{{
+						RepositoryId: needs.RepoId,
+						RefName:      branch,
+						MatchKind:    "exact",
+					}},
+				}
+				go CreateBranchPolicy(policyClient, ctx,
+									needs.RepoId, projname,
+									needs.Branches,MIN_NUMBER_OF_REWIERES_DISPLAY_NAME,
+									MIN_NUMBER_OF_REWIERES_UUID,settings,true, &wg)
+				go CreateBranchPolicy(policyClient, ctx,
+									needs.RepoId, projname,
+									needs.Branches,WORK_ITEM_LINKING_DISPLAY_NAME,
+									WORK_ITEM_LINKING_DISPLAY_UUID,settings,true, &wg)
+				go CreateBranchPolicy(policyClient, ctx,
+									needs.RepoId, projname,
+									needs.Branches,COMMENT_REQUIREMENTS_DISPLAY_NAME,
+									COMMENT_REQUIREMENTS_UUID,settings,true, &wg)
+				go CreateBranchPolicy(policyClient, ctx,
+									needs.RepoId, projname,
+									needs.Branches,REQUIRE_A_MERGE_STRATEGY_DISPLAY_NAME,
+									REQUIRE_A_MERGE_STRATEGY_UUID,settings,true, &wg)
+				go CreateBranchPolicy(policyClient, ctx,
+									needs.RepoId, projname,
+									needs.Branches,REQUIRED_REVIEWERS_DISPLAY_NAME,
+									REQUIRED_REVIEWERS_UUID,settings,false, &wg)
+				wf.Done()
+			}
+			wf.Wait()
 		}
 		wg.Wait()
 		//minnrofreviewersuuid, err := uuid.Parse(MIN_NUMBER_OF_REWIERES_UUID)
@@ -108,55 +149,6 @@ func main() {
 		//repositoryid, err := uuid.Parse("f4da5e90-de5b-4ffa-99e5-fc4dfc36f6ae")
 		//if err != nil {
 		//	log.Fatal(err)
-		//}
-		//t := time.Now().Format("2020-07-30T11:19:36.4966665")
-		t, err := time.Parse(time.RFC3339,time.Now().Format(time.RFC3339))
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(t.String())
-		//for _, repoid := range repoids {
-		//	if repoid != "" {
-		//		repid, err := uuid.Parse(repoid)
-		//		if err != nil {
-		//			log.Fatal(err)
-		//		}
-		//
-		//		pol, err := policyClient.CreatePolicyConfiguration(ctx, policy.CreatePolicyConfigurationArgs{
-		//			Configuration: &policy.PolicyConfiguration{
-		//				Type: &policy.PolicyTypeRef{
-		//					DisplayName: &minnrofreviewerdn,
-		//					Id: &minnrofreviewersuuid,
-		//				},
-		//				CreatedDate: &azuredevops.Time{Time: t},
-		//				IsBlocking:  &isblocking,
-		//				IsDeleted:   &isdeleted,
-		//				IsEnabled:   &isenabled,
-		//				Settings: SettingsMinNrReviewers{
-		//					AllowDownvotes:       false,
-		//					BlockLastPusherVote:  true,
-		//					CreatorVoteCounts:    false,
-		//					//AllowNoFastForward:   "false",
-		//					//AllowRebaseMerge:	  "false",
-		//					//AllowRebase:          "true",
-		//					//AllowSquash:          "true",
-		//					//RequiredReviewerIds:  []string{"4d49214c-c791-6e27-9d74-bcce48230683"},
-		//					MinimumApproverCount: 1,
-		//					ResetOnSourcePush:    true,
-		//					Scope: []Scope{{
-		//						RepositoryId: repid,
-		//						RefName:      "refs/heads/dev",
-		//						MatchKind:    "exact",
-		//					}},
-		//				},
-		//			},
-		//			Project: projname,
-		//		})
-		//		if err != nil {
-		//			log.Fatal(err)
-		//		}
-		//		fmt.Printf("policy name is %v\n", pol)
-		//	}
 		//}
 	}else {
 		log.Fatalln("Please specify a config file for the repositories with the argument --file")
