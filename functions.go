@@ -103,20 +103,20 @@ func InitAllRepos(remoteUrl string,username string, password string,i int) {
 	}
 }
 
-func GetBranchesId(client git.Client,ctx context.Context,
-					project *string,repo *string,reposids []string, i int,wg *sync.WaitGroup)  {
-	repod, err := client.GetRepository(ctx,git.GetRepositoryArgs{
-		RepositoryId: repo,
-		Project:      project,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("repository %s with repository id %s\n",*repod.Name,*repod.Id)
-	reposids[i] = fmt.Sprintf("%s",*repod.Id)
-	defer wg.Done()
-	
-}
+//func GetBranchesId(client git.Client,ctx context.Context,
+//					project *string,repo *string,reposids []string, i int,wg *sync.WaitGroup)  {
+//	repod, err := client.GetRepository(ctx,git.GetRepositoryArgs{
+//		RepositoryId: repo,
+//		Project:      project,
+//	})
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	fmt.Printf("repository %s with repository id %s\n",*repod.Name,*repod.Id)
+//	reposids[i] = fmt.Sprintf("%s",*repod.Id)
+//	defer wg.Done()
+//
+//}
 
 func GetAllRepos(client git.Client,ctx context.Context,
 	project *string)  []string {
@@ -199,60 +199,6 @@ func GetCommitIdBranch(client git.Client,ctx context.Context,
 	return branch.Commit.CommitId
 }
 
-//func CreateMinReviewersPolicy(client policy.Client,ctx context.Context,
-//							  repoid uuid.UUID, project *string,
-//							  branches []string,wg *sync.WaitGroup)  {
-//	defer wg.Done()
-//	isdeleted := false
-//	isenabled := true
-//	isblocking := false
-//	minnrofreviewerdn := MIN_NUMBER_OF_REWIERES_DISPLAY_NAME
-//	minnrofreviewersuuid, err := uuid.Parse(MIN_NUMBER_OF_REWIERES_UUID)
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	t, err := time.Parse(time.RFC3339,time.Now().Format(time.RFC3339))
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//	for _,branch := range branches {
-//		pol, err := client.CreatePolicyConfiguration(ctx, policy.CreatePolicyConfigurationArgs{
-//			Configuration: &policy.PolicyConfiguration{
-//				Type: &policy.PolicyTypeRef{
-//					DisplayName: &minnrofreviewerdn,
-//					Id:          &minnrofreviewersuuid,
-//				},
-//				CreatedDate: &azuredevops.Time{Time: t},
-//				IsBlocking:  &isblocking,
-//				IsDeleted:   &isdeleted,
-//				IsEnabled:   &isenabled,
-//				Settings: SettingsMinNrReviewers{
-//					AllowDownvotes:      false,
-//					BlockLastPusherVote: true,
-//					CreatorVoteCounts:   false,
-//					//AllowNoFastForward:   "false",
-//					//AllowRebaseMerge:	  "false",
-//					//AllowRebase:          "true",
-//					//AllowSquash:          "true",
-//					//RequiredReviewerIds:  []string{"4d49214c-c791-6e27-9d74-bcce48230683"},
-//					MinimumApproverCount: 1,
-//					ResetOnSourcePush:    true,
-//					Scope: []Scope{{
-//						RepositoryId: repoid,
-//						RefName:      branch,
-//						MatchKind:    "exact",
-//					}},
-//				},
-//			},
-//			Project: project,
-//		})
-//		if err != nil {
-//			log.Fatal(err)
-//		}
-//		fmt.Printf("policy name is %v\n", pol)
-//	}
-//}
 func CreateBranchPolicy(client policy.Client,ctx context.Context,
 					repoid uuid.UUID, project *string,
 					branches []string,typedn string,
@@ -288,7 +234,6 @@ func CreateBranchPolicy(client policy.Client,ctx context.Context,
 		log.Fatal(err)
 	}
 	fmt.Printf("policy with name %s with settings %v was created\n", *pol.Type.DisplayName,pol.Settings)
-	//defer wg.Done()
 }
 
 

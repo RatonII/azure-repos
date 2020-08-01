@@ -119,37 +119,6 @@ func main() {
 			wf.Wait()
 		}
 		wg.Wait()
-		//minnrofreviewersuuid, err := uuid.Parse(MIN_NUMBER_OF_REWIERES_UUID)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//minnrofreviewerdn := MIN_NUMBER_OF_REWIERES_DISPLAY_NAME
-		//commentrequuid, err := uuid.Parse("c6a1889d-b943-4856-b76f-9e46bb6b0df2")
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//commentreqdn := "Comment requirements"
-		//requireviewersuuid, err := uuid.Parse("fd2167ab-b0be-447a-8ec8-39368250530e")
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//
-		//requireviewersdn := "Required reviewers"
-		//requiremergestrategyuuid, err := uuid.Parse("fa4e907d-c16b-4a4c-9dfa-4916e5d171ab")
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//requireviewersdn := "Require a merge strategy"
-		//workitemlinkinguuid, err := uuid.Parse("40e92b44-2fe1-4dd6-b3d8-74a9c21d0c6e")
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//workitemlinkdn := "Work item linking"
-
-		//repositoryid, err := uuid.Parse("f4da5e90-de5b-4ffa-99e5-fc4dfc36f6ae")
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
 	}else {
 		log.Fatalln("Please specify a config file for the repositories with the argument --file")
 	}
