@@ -6,10 +6,10 @@ import (
 	gt "github.com/go-git/go-git"
 	"github.com/go-git/go-git/config"
 	"github.com/go-git/go-git/plumbing/object"
+	"github.com/go-git/go-git/plumbing/transport/http"
 	"github.com/google/uuid"
 	"github.com/microsoft/azure-devops-go-api/azuredevops"
 	"github.com/microsoft/azure-devops-go-api/azuredevops/git"
-	"github.com/go-git/go-git/plumbing/transport/http"
 	"github.com/microsoft/azure-devops-go-api/azuredevops/policy"
 	"github.com/otiai10/copy"
 	"gopkg.in/yaml.v3"
@@ -134,6 +134,7 @@ func CreateRepos(client git.Client,ctx context.Context,
 		log.Fatalf("There was some error creating the repo %v", err)
 	}
 	reposids[i] = PolicyRepoIdAndBranch{
+		RepoName: *repos.Name,
 		RepoId: *repos.Id,
 		Branches: *branches,
 	}
@@ -188,7 +189,7 @@ func CreateBranchPolicy(client policy.Client,ctx context.Context,
 					repoid uuid.UUID, project *string,
 					branches []string,typedn string,
 					typeuuid string,settings SettingsPolicy,
-					isBlocking bool,wg *sync.WaitGroup)  {
+					isBlocking bool,reponame string,wg *sync.WaitGroup)  {
 	defer wg.Done()
 	isdeleted := false
 	isenabled := true
@@ -218,7 +219,59 @@ func CreateBranchPolicy(client policy.Client,ctx context.Context,
 	if err != nil {
 		log.Fatal(err)
 	}
+	// If the file doesn't exist, create it, or append to the file
+	f, err := os.OpenFile(fmt.Sprintf("created-policies/%s.yaml",reponame), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	//polbranches := fmt.Sprintf("[%s]",strings.Join(branches,","))
+	if _, err := f.Write([]byte(fmt.Sprintf("- policyid: %d\n" +
+													"  repoid: %v\n" +
+													"  branch: %s\n" +
+													"  typeid: %v\n" +
+													"  typedisplayname: %s\n",
+													*pol.Id,
+													settings.Scope[0].RepositoryId,
+													settings.Scope[0].RefName,
+													tuuid,
+													typedn)));
+	err != nil {
+		log.Fatal(err)
+	}
+	if err := f.Close(); err != nil {
+		log.Fatal(err)
+	}
+
 	fmt.Printf("policy with name %s and id %d was created\n", *pol.Type.DisplayName,*pol.Id)
+}
+
+func UpdateBranchPolicy(client policy.Client,ctx context.Context,
+	repoid uuid.UUID, project *string,
+	typedn string,typeuuid string,
+	settings SettingsPolicy,isBlocking bool,
+	policyid *int, wg *sync.WaitGroup)  {
+	defer wg.Done()
+	isenabled := true
+	tuuid, err := uuid.Parse(typeuuid)
+	if err != nil {
+		log.Fatal(err)
+	}
+	pol, err := client.UpdatePolicyConfiguration(ctx, policy.UpdatePolicyConfigurationArgs{
+		Configuration: &policy.PolicyConfiguration{
+			Type: &policy.PolicyTypeRef{
+				Id:          &tuuid,
+			},
+			IsBlocking:  &isBlocking,
+			IsEnabled:   &isenabled,
+			Settings: settings,
+		},
+		Project: project,
+		ConfigurationId: policyid,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("policy with name %s and id %d was updated\n", *pol.Type.DisplayName,*pol.Id)
 }
 
 
@@ -235,6 +288,20 @@ func (c *ReposConfig) getConf(ReposFile *string) *ReposConfig {
 	}
 
 	return c
+}
+
+func (p *CreatedPolicies) getConf(ReposFile string) *CreatedPolicies {
+
+	yamlFile, err := ioutil.ReadFile(ReposFile)
+	if err != nil {
+		log.Printf("yamlFile.Get err   #%v ", err)
+	}
+	err = yaml.Unmarshal(yamlFile, p)
+	if err != nil {
+		log.Fatalf("Unmarshal: %v", err)
+	}
+
+	return p
 }
 
 func Find(slice []string, val string)  bool{

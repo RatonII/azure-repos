@@ -7,7 +7,11 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/microsoft/azure-devops-go-api/azuredevops/policy"
+	"os"
+	"path/filepath"
+
 	//"golang.org/x/crypto/ssh/terminal"
 	//WARNING: Dont use go get for this library use git
 	"github.com/microsoft/azure-devops-go-api/azuredevops"
@@ -19,6 +23,7 @@ import (
 
 func main() {
 	var wg sync.WaitGroup
+	var wf sync.WaitGroup
 	runtime.GOMAXPROCS(4)
 	reposFile := flag.String("file", "", "Add a config file yaml with all the pipelines contains")
 	user := flag.String("user", "", "Add username(email) that you want to connect with")
@@ -26,6 +31,7 @@ func main() {
 	flag.Parse()
 	if *reposFile != "" {
 		var r ReposConfig
+		var p CreatedPolicies
 		repositories := r.getConf(reposFile).Repositories
 		branchpolicies := r.getConf(reposFile).BranchPoliciesSettings
 		organizationUrl := r.getConf(reposFile).OrganizationUrl
@@ -94,26 +100,70 @@ func main() {
 				go CreateBranchPolicy(policyClient, ctx,
 					needs.RepoId, projname,
 					needs.Branches, MIN_NUMBER_OF_REWIERES_DISPLAY_NAME,
-					MIN_NUMBER_OF_REWIERES_UUID, settings, true, &wg)
+					MIN_NUMBER_OF_REWIERES_UUID, settings, true, needs.RepoName, &wg)
 				go CreateBranchPolicy(policyClient, ctx,
 					needs.RepoId, projname,
 					needs.Branches, WORK_ITEM_LINKING_DISPLAY_NAME,
-					WORK_ITEM_LINKING_DISPLAY_UUID, settings, true, &wg)
+					WORK_ITEM_LINKING_DISPLAY_UUID, settings, true, needs.RepoName, &wg)
 				go CreateBranchPolicy(policyClient, ctx,
 					needs.RepoId, projname,
 					needs.Branches, COMMENT_REQUIREMENTS_DISPLAY_NAME,
-					COMMENT_REQUIREMENTS_UUID, settings, true, &wg)
+					COMMENT_REQUIREMENTS_UUID, settings, true, needs.RepoName, &wg)
 				go CreateBranchPolicy(policyClient, ctx,
 					needs.RepoId, projname,
 					needs.Branches, REQUIRE_A_MERGE_STRATEGY_DISPLAY_NAME,
-					REQUIRE_A_MERGE_STRATEGY_UUID, settings, true, &wg)
+					REQUIRE_A_MERGE_STRATEGY_UUID, settings, true, needs.RepoName, &wg)
 				go CreateBranchPolicy(policyClient, ctx,
 					needs.RepoId, projname,
 					needs.Branches, REQUIRED_REVIEWERS_DISPLAY_NAME,
-					REQUIRED_REVIEWERS_UUID, settings, false, &wg)
+					REQUIRED_REVIEWERS_UUID, settings, false, needs.RepoName, &wg)
+
+			}
+			wg.Wait()
+		}
+		var files []string
+		policiesfolder := "created-policies"
+		err = filepath.Walk(policiesfolder, func(path string, info os.FileInfo, err error) error {
+			files = append(files, path)
+			return nil
+		})
+		if err != nil {
+			panic(err)
+		}
+		createdpolicies := []*CreatedPolicies{}
+		for _, file := range files {
+			if file != policiesfolder {
+				createdpolicies = append(createdpolicies, p.getConf(file))
 			}
 		}
-		wg.Wait()
+				for _, cpol := range createdpolicies {
+					wf.Add(len(*cpol))
+					for _,cpl := range *cpol {
+						fmt.Println(cpl.Policyid)
+						settings := SettingsPolicy{
+							MinimumApproverCount: branchpolicies.MinimumApproverCount,
+							AllowDownvotes:       branchpolicies.AllowDownvotes,
+							BlockLastPusherVote:  branchpolicies.BlockLastPusherVote,
+							CreatorVoteCounts:    branchpolicies.CreatorVoteCounts,
+							ResetOnSourcePush:    branchpolicies.ResetOnSourcePush,
+							AllowNoFastForward:   branchpolicies.AllowNoFastForward,
+							AllowRebase:          branchpolicies.AllowRebase,
+							AllowRebaseMerge:     branchpolicies.AllowRebaseMerge,
+							AllowSquash:          branchpolicies.AllowSquash,
+							RequiredReviewerIds:  branchpolicies.RequiredReviewerIds,
+							Scope: []Scope{{
+								RepositoryId: cpl.Repoid,
+								RefName:      cpl.Branch,
+								MatchKind:    "exact",
+							}},
+						}
+						UpdateBranchPolicy(policyClient, ctx,
+							cpl.Repoid, projname,
+							cpl.TypeDisplayName, cpl.Typeid,
+							settings, true, &cpl.Policyid, &wf)
+					}
+					wf.Wait()
+				}
 	}else {
 		log.Fatalln("Please specify a config file for the repositories with the argument --file")
 	}

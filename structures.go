@@ -43,6 +43,15 @@ type SettingsPolicy struct {
 }
 
 type PolicyRepoIdAndBranch struct {
+	RepoName	string
 	RepoId		uuid.UUID
 	Branches	[]string
+}
+
+type CreatedPolicies []struct {
+	Policyid 		int			`yaml:"policyid"`
+	Repoid  		uuid.UUID	`yaml:"repoid"`
+	Branch 			string		`yaml:"branch"`
+	Typeid 			string		`yaml:"typeid"`
+	TypeDisplayName	string		`yaml:"typedisplayname"`
 }

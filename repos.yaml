@@ -26,4 +26,8 @@ repositories:
     branches:
       - "refs/heads/dev"
       - "refs/heads/test"
+  - name: donotdo
+    branches:
+      - "refs/heads/dev"
+      - "refs/heads/test"
 
