@@ -5,15 +5,15 @@ import (
 )
 
 type ReposConfig struct {
-	OrganizationUrl *string `yaml:"organizationUrl"`
-	Project *string		`yaml:"project"`
-	Repositories []Repo
+	OrganizationUrl *string 				`yaml:"organizationUrl"`
+	Project *string							`yaml:"project"`
+	Repositories []Repo						`yaml:"repositories"`
+	BranchPoliciesSettings SettingsPolicy	`yaml:"branchPoliciesSettings"`
 }
 
 type Repo struct {
-	Name *string									`yaml:"name"`
-	Branches []string								`yaml:"branches"`
-	BranchPoliciesSettings SettingsPolicy	`yaml:"branchPoliciesSettings"`
+	Name *string							`yaml:"name"`
+	Branches *[]string						`yaml:"branches"`
 }
 
 type SettingsBuild struct {
@@ -28,18 +28,18 @@ type Scope struct {
 }
 
 type SettingsPolicy struct {
-	AllowDownvotes			bool
-	BlockLastPusherVote		bool
-	CreatorVoteCounts 		bool
-	MinimumApproverCount 	int
-	ResetOnSourcePush		bool
-	AllowNoFastForward		bool
-	AllowRebase 			bool
-	AllowRebaseMerge 		bool
-	AllowSquash 			bool
+	MinimumApproverCount 	int			`yaml:"minimumApproverCount"`
+	AllowDownvotes			bool		`yaml:"allowDownvotes"`
+	BlockLastPusherVote		bool		`yaml:"blockLastPusherVote"`
+	CreatorVoteCounts 		bool		`yaml:"creatorVoteCounts"`
+	ResetOnSourcePush		bool		`yaml:"resetOnSourcePush"`
+	AllowNoFastForward		bool		`yaml:"allowNoFastForward"`
+	AllowRebase 			bool		`yaml:"allowRebase"`
+	AllowRebaseMerge 		bool		`yaml:"allowRebaseMerge"`
+	AllowSquash 			bool		`yaml:"allowSquash"`
+	RequiredReviewerIds 	[]string	`yaml:"requiredReviewerIds"`
 	Message 				string
-	RequiredReviewerIds 	[]string
-	Scope 					[]Scope
+	Scope					[]Scope
 }
 
 type PolicyRepoIdAndBranch struct {

@@ -12,7 +12,7 @@ import (
 	"github.com/go-git/go-git/plumbing/transport/http"
 	"github.com/microsoft/azure-devops-go-api/azuredevops/policy"
 	"github.com/otiai10/copy"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
 	"os"
@@ -103,21 +103,6 @@ func InitAllRepos(remoteUrl string,username string, password string,i int) {
 	}
 }
 
-//func GetBranchesId(client git.Client,ctx context.Context,
-//					project *string,repo *string,reposids []string, i int,wg *sync.WaitGroup)  {
-//	repod, err := client.GetRepository(ctx,git.GetRepositoryArgs{
-//		RepositoryId: repo,
-//		Project:      project,
-//	})
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//	fmt.Printf("repository %s with repository id %s\n",*repod.Name,*repod.Id)
-//	reposids[i] = fmt.Sprintf("%s",*repod.Id)
-//	defer wg.Done()
-//
-//}
-
 func GetAllRepos(client git.Client,ctx context.Context,
 	project *string)  []string {
 	responseValue, err := client.GetRepositories(ctx, git.GetRepositoriesArgs{Project: project})
@@ -135,7 +120,7 @@ func GetAllRepos(client git.Client,ctx context.Context,
 
 func CreateRepos(client git.Client,ctx context.Context,
 	username string, password string,
-	project *string, name *string,branches []string,
+	project *string, name *string,branches *[]string,
 	reposids []PolicyRepoIdAndBranch, i int,
 	wg *sync.WaitGroup) {
 	defer wg.Done()
@@ -150,10 +135,10 @@ func CreateRepos(client git.Client,ctx context.Context,
 	}
 	reposids[i] = PolicyRepoIdAndBranch{
 		RepoId: *repos.Id,
-		Branches: branches,
+		Branches: *branches,
 	}
 	InitAllRepos(*repos.RemoteUrl,username,password,i)
-	CreateBranch(client,ctx,project,name,GetCommitIdBranch(client,ctx,project,name),branches)
+	CreateBranch(client,ctx,project,name,GetCommitIdBranch(client,ctx,project,name),*branches)
 	fmt.Printf("The repo %s  was created with the url for clone is %s\n", *repos.Name, *repos.SshUrl)
 }
 
@@ -233,7 +218,7 @@ func CreateBranchPolicy(client policy.Client,ctx context.Context,
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("policy with name %s with settings %v was created\n", *pol.Type.DisplayName,pol.Settings)
+	fmt.Printf("policy with name %s and id %d was created\n", *pol.Type.DisplayName,*pol.Id)
 }
 
 

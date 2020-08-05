@@ -1,23 +1,29 @@
 organizationUrl: https://dev.azure.com/mariuss2007
 project: "test"
+branchPoliciesSettings:
+  minimumApproverCount: 1
+  allowDownvotes:      false
+  blockLastPusherVote: true
+  creatorVoteCounts:   false
+  resetOnSourcePush:   true
+  allowNoFastForward:  false
+  allowRebase:         true
+  allowRebaseMerge:    false
+  allowSquash:         true
+  requiredReviewerIds:
+    - "4d49214c-c791-6e27-9d74-bcce48230683"
 repositories:
   - name: YamlPipelineTest4
     branches:
       - "refs/heads/dev"
       - "refs/heads/test"
       - "refs/heads/qa"
-    branchPoliciesSettings:
-      minNrReviewers:
-
-
   - name: testnewreposshit
     branches:
       - "refs/heads/dev"
       - "refs/heads/test"
-    branchpolicies:
   - name: dothatshitdoit
     branches:
       - "refs/heads/dev"
       - "refs/heads/test"
-    branchpolicies:
 
