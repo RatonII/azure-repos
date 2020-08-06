@@ -157,10 +157,17 @@ func main() {
 								MatchKind:    "exact",
 							}},
 						}
-						UpdateBranchPolicy(policyClient, ctx,
-							cpl.Repoid, projname,
-							cpl.TypeDisplayName, cpl.Typeid,
-							settings, true, &cpl.Policyid, &wf)
+						if cpl.Typeid == REQUIRED_REVIEWERS_UUID {
+							UpdateBranchPolicy(policyClient, ctx,
+								cpl.Repoid, projname,
+								cpl.TypeDisplayName, cpl.Typeid,
+								settings, false, &cpl.Policyid, &wf)
+						} else {
+							UpdateBranchPolicy(policyClient, ctx,
+								cpl.Repoid, projname,
+								cpl.TypeDisplayName, cpl.Typeid,
+								settings, true, &cpl.Policyid, &wf)
+						}
 					}
 					wf.Wait()
 				}
