@@ -23,8 +23,8 @@ import (
 const (
 	PATH  = "repo"
 	REMOTENAME = "origin"
-	ADDPATH    = "README.md"
-	COMMITMSG  = "Adding README.md"
+	ADDPATH    = "asset.yml"
+	COMMITMSG  = "Adding asset.yml"
 	MIN_NUMBER_OF_REWIERES_DISPLAY_NAME = "Minimum number of reviewers"
 	MIN_NUMBER_OF_REWIERES_UUID = "fa4e907d-c16b-4a4c-9dfa-4906e5d171dd"
 	WORK_ITEM_LINKING_DISPLAY_NAME = "Work item linking"
