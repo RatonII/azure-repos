@@ -58,7 +58,9 @@ func InitAllRepos(remoteUrl string,username string, password string,i int) {
 	if err != nil {
 		panic(err)
 	}
-	_, err = w.Add(ADDPATH)
+	err = w.AddWithOptions(&gt.AddOptions{
+		All: true,
+	})
 	if err != nil {
 		panic(err)
 	}

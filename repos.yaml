@@ -18,16 +18,16 @@ repositories:
       - "refs/heads/dev"
       - "refs/heads/test"
       - "refs/heads/qa"
-  - name: testnewreposshit
-    branches:
-      - "refs/heads/dev"
-      - "refs/heads/test"
-  - name: dothatshitdoit
-    branches:
-      - "refs/heads/dev"
-      - "refs/heads/test"
-  - name: donotdo
-    branches:
-      - "refs/heads/dev"
-      - "refs/heads/test"
+#  - name: testnewreposshit
+#    branches:
+#      - "refs/heads/dev"
+#      - "refs/heads/test"
+#  - name: dothatshitdoit
+#    branches:
+#      - "refs/heads/dev"
+#      - "refs/heads/test"
+#  - name: donotdo
+#    branches:
+#      - "refs/heads/dev"
+#      - "refs/heads/test"
 
