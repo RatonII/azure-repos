@@ -113,11 +113,11 @@ func SavePoliciesStates(username string, password string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	_, err = d.CreateRemote(&config.RemoteConfig{
-		Name: REMOTENAME,
-		URLs: []string{CREATEREPOSURL},
-	})
+	//
+	//_, err = d.CreateRemote(&config.RemoteConfig{
+	//	Name: REMOTENAME,
+	//	URLs: []string{CREATEREPOSURL},
+	//})
 	w, err := d.Worktree()
 	if err != nil {
 		log.Fatal(err)
