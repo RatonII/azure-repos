@@ -21,9 +21,11 @@ import (
 )
 
 const (
+	STATEPATH = "created-policies"
 	PATH  = "repo"
 	REMOTENAME = "origin"
 	ADDPATH    = "asset.yml"
+	STATECOMMITMSG = "Adding created policies states"
 	COMMITMSG  = "Adding asset.yml"
 	MIN_NUMBER_OF_REWIERES_DISPLAY_NAME = "Minimum number of reviewers"
 	MIN_NUMBER_OF_REWIERES_UUID = "fa4e907d-c16b-4a4c-9dfa-4906e5d171dd"
@@ -100,6 +102,49 @@ func InitAllRepos(remoteUrl string,username string, password string,i int) {
 		}
 	}
 	err = os.RemoveAll(fmt.Sprintf("%s%d",PATH,i))
+	if err != nil {
+		panic(err)
+	}
+}
+
+func SavePoliciesStates(username string, password string) {
+	d, err := gt.PlainOpen(".")
+	if err != nil {
+		panic(err)
+	}
+	w, err := d.Worktree()
+	if err != nil {
+		panic(err)
+	}
+	err = w.AddWithOptions(&gt.AddOptions{
+		All: true,
+		Glob: STATEPATH,
+	})
+	if err != nil {
+		panic(err)
+	}
+	_, err = w.Status()
+	if err != nil {
+		panic(err)
+	}
+	//fmt.Println(status)
+	_, err = w.Commit(STATECOMMITMSG, &gt.CommitOptions{
+		Author: &object.Signature{
+			Email: username,
+			When:  time.Now(),
+		},
+	})
+	err = d.Push(&gt.PushOptions{
+		RemoteName: REMOTENAME,
+		RefSpecs:   nil,
+		Auth:       &http.BasicAuth{
+			Username: username,
+			Password: password,
+		},
+		Progress:   nil,
+		Prune:      false,
+		Force:      false,
+	})
 	if err != nil {
 		panic(err)
 	}
