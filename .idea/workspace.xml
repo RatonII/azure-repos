@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="148611d3-3c57-435c-953a-2b6556858be4" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="GOROOT" path="/usr/local/go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1fJepuWqacOr3Cj7oJaI2uyjzKA" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/DK Monokai-original-go-highlight.icls" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="2610" y="320" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1596726935592">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2610" y="320" key="#com.intellij.fileTypes.FileTypeChooser/1920.0.1920.1080/0.0.1920.1040@1920.0.1920.1080" timestamp="1596726935592" />
+    <state x="2020" y="100" width="1720" height="840" key="DiffContextDialog" timestamp="1596699119605">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2020" y="100" width="1720" height="840" key="DiffContextDialog/1920.0.1920.1080/0.0.1920.1040@1920.0.1920.1080" timestamp="1596699119605" />
+    <state x="2664" y="278" key="FileChooserDialogImpl" timestamp="1596439072902">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2664" y="278" key="FileChooserDialogImpl/1920.0.1920.1080/0.0.1920.1040@1920.0.1920.1080" timestamp="1596439072902" />
+    <state x="2666" y="202" key="RollbackChangesDialog" timestamp="1596699125844">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2666" y="202" key="RollbackChangesDialog/1920.0.1920.1080/0.0.1920.1040@1920.0.1920.1080" timestamp="1596699125844" />
+    <state x="2377" y="153" key="SettingsEditor" timestamp="1596439298241">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2377" y="153" key="SettingsEditor/1920.0.1920.1080/0.0.1920.1040@1920.0.1920.1080" timestamp="1596439298241" />
+    <state x="2020" y="100" width="1720" height="840" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1596698774361">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2020" y="100" width="1720" height="840" key="com.intellij.history.integration.ui.views.FileHistoryDialog/1920.0.1920.1080/0.0.1920.1040@1920.0.1920.1080" timestamp="1596698774361" />
+    <state x="2728" y="85" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1596643844983">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2728" y="85" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/1920.0.1920.1080/0.0.1920.1040@1920.0.1920.1080" timestamp="1596643844983" />
+    <state x="2583" y="259" width="1257" height="522" key="find.popup" timestamp="1596656989281">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2583" y="259" width="1257" height="522" key="find.popup/1920.0.1920.1080/0.0.1920.1040@1920.0.1920.1080" timestamp="1596656989281" />
+  </component>
+</project>

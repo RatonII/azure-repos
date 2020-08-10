@@ -121,7 +121,23 @@ func main() {
 			}
 			wg.Wait()
 		}
+		//baserepo := "test"
 		SavePoliciesStates(username, personalAccessToken)
+		//gitClient.CreatePush(ctx, git.CreatePushArgs{
+		//	Push:         &git.GitPush{
+		//		Links:             nil,
+		//		Date:              nil,
+		//		PushCorrelationId: nil,
+		//		PushedBy:          nil,
+		//		PushId:            nil,
+		//		Url:               nil,
+		//		Commits:           nil,
+		//		RefUpdates:        nil,
+		//		Repository:        nil,
+		//	},
+		//	RepositoryId: &baserepo,
+		//	Project:      projname,
+		//})
 		var files []string
 		policiesfolder := "created-policies"
 		err = filepath.Walk(policiesfolder, func(path string, info os.FileInfo, err error) error {

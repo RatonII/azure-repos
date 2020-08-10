@@ -112,6 +112,20 @@ func SavePoliciesStates(username string, password string) {
 	if err != nil {
 		panic(err)
 	}
+	re, err := d.Remotes()
+	if err != nil {
+		panic(err)
+	}
+	for _, remote := range re {
+		err = d.DeleteRemote(remote.Config().Name)
+		if err != nil {
+			panic(err)
+		}
+	}
+	_, err = d.CreateRemote(&config.RemoteConfig{
+		Name: REMOTENAME,
+		URLs: []string{"https://mariuss2007@dev.azure.com/mariuss2007/test/_git/test"},
+	})
 	w, err := d.Worktree()
 	if err != nil {
 		panic(err)
