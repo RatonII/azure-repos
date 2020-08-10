@@ -135,6 +135,15 @@ func SavePoliciesStates(username string, password string) {
 			When:  time.Now(),
 		},
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = w.Checkout(&gt.CheckoutOptions{
+		Branch: "marius-add-pipeline",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = w.Pull(&gt.PullOptions{
 		Auth:               &http.BasicAuth{
 			Username: username,
@@ -144,6 +153,9 @@ func SavePoliciesStates(username string, password string) {
 		Progress:          nil,
 		Force:             false,
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = d.Push(&gt.PushOptions{
 		Auth:       &http.BasicAuth{
 			Username: username,
