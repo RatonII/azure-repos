@@ -149,6 +149,17 @@ func SavePoliciesStates(username string, password string) {
 			When:  time.Now(),
 		},
 	})
+	err = w.Pull(&gt.PullOptions{
+		RemoteName:        "origin",
+		SingleBranch:      true,
+		Auth:               &http.BasicAuth{
+			Username: username,
+			Password: password,
+		},
+		RecurseSubmodules: 0,
+		Progress:          nil,
+		Force:             false,
+	})
 	err = d.Push(&gt.PushOptions{
 		RemoteName: REMOTENAME,
 		Auth:       &http.BasicAuth{
