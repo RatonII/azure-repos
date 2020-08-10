@@ -22,7 +22,7 @@ import (
 
 const (
 	STATEPATH = "created-policies"
-	CREATEREPOSURL = "https://mariuss2007@dev.azure.com/mariuss2007/test/_git/test"
+	CREATEREPOSURL = "https://humana.visualstudio.com/Wellness%20and%20Rewards/_git/WARP_CreateRepos"
 	PATH  = "repo"
 	REMOTENAME = "origin"
 	ADDPATH    = "asset.yml"
