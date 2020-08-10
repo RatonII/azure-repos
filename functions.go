@@ -159,7 +159,9 @@ func SavePoliciesStates(username string, password string) {
 		Force:             false,
 	})
 	if err != nil {
-		panic(err)
+		if err.Error() != "already up-to-date" {
+			panic(err)
+		}
 	}
 	err = d.Push(&gt.PushOptions{
 		Auth:       &http.BasicAuth{
