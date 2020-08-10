@@ -159,7 +159,7 @@ func SavePoliciesStates(username string, password string) {
 		Force:             false,
 	})
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	err = d.Push(&gt.PushOptions{
 		Auth:       &http.BasicAuth{
@@ -171,7 +171,7 @@ func SavePoliciesStates(username string, password string) {
 		Force:      false,
 	})
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
 
