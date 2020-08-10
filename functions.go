@@ -43,15 +43,15 @@ const (
 func InitAllRepos(remoteUrl string,username string, password string,i int) {
 	err := copy.Copy(PATH,fmt.Sprintf("%s%d",PATH,i))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	_, err = gt.PlainInit(fmt.Sprintf("%s%d",PATH,i),false)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	d, err := gt.PlainOpen(fmt.Sprintf("%s%d",PATH,i))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	_, err = d.CreateRemote(&config.RemoteConfig{
 		Name: REMOTENAME,
@@ -59,17 +59,17 @@ func InitAllRepos(remoteUrl string,username string, password string,i int) {
 	})
 	w, err := d.Worktree()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	err = w.AddWithOptions(&gt.AddOptions{
 		All: true,
 	})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	_, err = w.Status()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	//fmt.Println(status)
 	_, err = w.Commit(COMMITMSG, &gt.CommitOptions{
@@ -90,37 +90,37 @@ func InitAllRepos(remoteUrl string,username string, password string,i int) {
 		Force:      false,
 	})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	re, err := d.Remotes()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	for _, remote := range re {
 		err = d.DeleteRemote(remote.Config().Name)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 	err = os.RemoveAll(fmt.Sprintf("%s%d",PATH,i))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
 func SavePoliciesStates(username string, password string) {
 	d, err := gt.PlainOpen(".")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	re, err := d.Remotes()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	for _, remote := range re {
 		err = d.DeleteRemote(remote.Config().Name)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 	_, err = d.CreateRemote(&config.RemoteConfig{
@@ -129,18 +129,18 @@ func SavePoliciesStates(username string, password string) {
 	})
 	w, err := d.Worktree()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	err = w.AddWithOptions(&gt.AddOptions{
 		All: true,
 		Glob: STATEPATH,
 	})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	_, err = w.Status()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	//fmt.Println(status)
 	_, err = w.Commit(STATECOMMITMSG, &gt.CommitOptions{
@@ -151,7 +151,6 @@ func SavePoliciesStates(username string, password string) {
 	})
 	err = d.Push(&gt.PushOptions{
 		RemoteName: REMOTENAME,
-		RefSpecs:   []config.RefSpec{"+refs/heads/marius-*:refs/remotes/origin/marius-*"},
 		Auth:       &http.BasicAuth{
 			Username: username,
 			Password: password,
@@ -161,7 +160,7 @@ func SavePoliciesStates(username string, password string) {
 		Force:      false,
 	})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
