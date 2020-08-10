@@ -67,11 +67,11 @@ func InitAllRepos(remoteUrl string,username string, password string,i int) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = w.Status()
+	status, err := w.Status()
 	if err != nil {
 		log.Fatal(err)
 	}
-	//fmt.Println(status)
+	fmt.Println(status)
 	_, err = w.Commit(COMMITMSG, &gt.CommitOptions{
 		Author: &object.Signature{
 			Email: username,
@@ -113,6 +113,11 @@ func SavePoliciesStates(username string, password string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	_, err = d.CreateRemote(&config.RemoteConfig{
+		Name: REMOTENAME,
+		URLs: []string{CREATEREPOSURL},
+	})
 	w, err := d.Worktree()
 	if err != nil {
 		log.Fatal(err)
@@ -124,11 +129,11 @@ func SavePoliciesStates(username string, password string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = w.Status()
+	status, err := w.Status()
 	if err != nil {
 		log.Fatal(err)
 	}
-	//fmt.Println(status)
+	fmt.Println(status)
 	_, err = w.Commit(STATECOMMITMSG, &gt.CommitOptions{
 		Author: &object.Signature{
 			Email: username,
