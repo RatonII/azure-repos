@@ -22,6 +22,7 @@ import (
 
 const (
 	STATEPATH = "created-policies"
+	CREATEREPOSURL = "https://mariuss2007@dev.azure.com/mariuss2007/test/_git/test"
 	PATH  = "repo"
 	REMOTENAME = "origin"
 	ADDPATH    = "asset.yml"
@@ -124,7 +125,7 @@ func SavePoliciesStates(username string, password string) {
 	}
 	_, err = d.CreateRemote(&config.RemoteConfig{
 		Name: REMOTENAME,
-		URLs: []string{"https://mariuss2007@dev.azure.com/mariuss2007/test/_git/test"},
+		URLs: []string{CREATEREPOSURL},
 	})
 	w, err := d.Worktree()
 	if err != nil {
