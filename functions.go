@@ -138,12 +138,12 @@ func SavePoliciesStates(username string, password string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = w.Checkout(&gt.CheckoutOptions{
-		Branch: "marius-add-pipeline",
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
+	//err = w.Checkout(&gt.CheckoutOptions{
+	//	Branch: "marius-add-pipeline",
+	//})
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 	err = w.Pull(&gt.PullOptions{
 		Auth:               &http.BasicAuth{
 			Username: username,
