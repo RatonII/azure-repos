@@ -113,20 +113,20 @@ func SavePoliciesStates(username string, password string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	re, err := d.Remotes()
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, remote := range re {
-		err = d.DeleteRemote(remote.Config().Name)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	_, err = d.CreateRemote(&config.RemoteConfig{
-		Name: REMOTENAME,
-		URLs: []string{CREATEREPOSURL},
-	})
+	//re, err := d.Remotes()
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//for _, remote := range re {
+	//	err = d.DeleteRemote(remote.Config().Name)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//}
+	//_, err = d.CreateRemote(&config.RemoteConfig{
+	//	Name: REMOTENAME,
+	//	URLs: []string{CREATEREPOSURL},
+	//})
 	w, err := d.Worktree()
 	if err != nil {
 		log.Fatal(err)
@@ -151,7 +151,7 @@ func SavePoliciesStates(username string, password string) {
 	})
 	err = w.Pull(&gt.PullOptions{
 		RemoteName:        "origin",
-		SingleBranch:      true,
+		SingleBranch:      false,
 		Auth:               &http.BasicAuth{
 			Username: username,
 			Password: password,
