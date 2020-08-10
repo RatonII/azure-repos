@@ -151,7 +151,7 @@ func SavePoliciesStates(username string, password string) {
 	})
 	err = d.Push(&gt.PushOptions{
 		RemoteName: REMOTENAME,
-		RefSpecs:   nil,
+		RefSpecs:   []config.RefSpec{"+refs/heads/marius-*:refs/remotes/origin/marius-*"},
 		Auth:       &http.BasicAuth{
 			Username: username,
 			Password: password,
