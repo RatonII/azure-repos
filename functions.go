@@ -193,8 +193,7 @@ func GetAllRepos(client git.Client,ctx context.Context,
 
 func GetCreatedReposBranches(client git.Client,ctx context.Context,
 					project *string, reponame *string,
-					repobranches []map[string][]string,wg *sync.WaitGroup) {
-	defer wg.Done()
+					createdrepos map[string][]string) map[string][]string{
 	createdbranches, err := client.GetBranches(ctx, git.GetBranchesArgs{
 		RepositoryId:          reponame,
 		Project:               project,
@@ -206,8 +205,8 @@ func GetCreatedReposBranches(client git.Client,ctx context.Context,
 	for _, branch := range *createdbranches {
 		branches = append( branches,*branch.Name)
 	}
-	repobranches = append(repobranches, map[string][]string{*reponame: branches})
-
+	createdrepos[*reponame] = branches
+	return createdrepos
 }
 
 func CreateRepos(client git.Client,ctx context.Context,
@@ -231,11 +230,11 @@ func CreateRepos(client git.Client,ctx context.Context,
 		Branches: *branches,
 	}
 	InitAllRepos(*repos.RemoteUrl,username,password,i)
-	CreateBranch(client,ctx,project,name,GetCommitIdBranch(client,ctx,project,name),*branches)
+	CreateBranches(client,ctx,project,name,GetCommitIdBranch(client,ctx,project,name),*branches)
 	fmt.Printf("The repo %s  was created with the url for clone is %s\n", *repos.Name, *repos.SshUrl)
 }
 
-func CreateBranch(client git.Client,ctx context.Context,
+func CreateBranches(client git.Client,ctx context.Context,
 					project *string,repo *string,newobjectid *string,
 					branches []string)  {
 	oldobjectid := "0000000000000000000000000000000000000000"
@@ -260,6 +259,14 @@ func CreateBranch(client git.Client,ctx context.Context,
 		}
 	}
 }
+
+func CreateBranch(client git.Client,ctx context.Context,
+	project *string,repo *string,newobjectid *string,
+	branches []string)  {
+	//oldobjectid := "0000000000000000000000000000000000000000"
+	//islocked := false
+}
+
 
 
 func GetCommitIdBranch(client git.Client,ctx context.Context,

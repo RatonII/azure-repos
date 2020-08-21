@@ -60,19 +60,72 @@ func main() {
 		}
 		// Get All existing repos for comparation
 		existingrepos := GetAllRepos(gitClient,ctx,projname)
+		oldobjectid := "0000000000000000000000000000000000000000"
+		islocked := false
 		repos := []Repo{}
-		createdrepobranches := make([]map[string][]string,len(repositories))
+		createdrepobranches := map[string][]string{}
 		for _, repo := range repositories {
 			if Find(existingrepos,*repo.Name) == false {
 					repos = append(repos,repo)
 			} else {
 				wg.Add(1)
-				go GetCreatedReposBranches(gitClient,ctx,projname,repo.Name,createdrepobranches,&wg)
+				go func() {
+					for k,v := range GetCreatedReposBranches(gitClient,ctx,projname,repo.Name,createdrepobranches) {
+						for _, branch := range *repo.Branches {
+							if Find(v,branch) == false {
+								//CreateBranches(gitClient,ctx,projname,repo.Name,GetCommitIdBranch(gitClient,ctx,projname,repo.Name),*branches)
+								branchresponse, err := gitClient.UpdateRefs(ctx, git.UpdateRefsArgs{
+									RefUpdates: &[]git.GitRefUpdate{{
+										IsLocked:    &islocked,
+										Name:        &branch,
+										OldObjectId: &oldobjectid,
+										NewObjectId: GetCommitIdBranch(gitClient,ctx,projname,&k),
+									},
+									},
+									RepositoryId: &k,
+									Project:      projname,
+								})
+								if err != nil {
+									log.Fatalf("There was some error creating the tag %v", err)
+								}
+								for _, branch := range (*branchresponse) {
+									fmt.Printf("The branch %s from  repo %v was created and it's success status is  %v\n", *branch.Name,*branch.RepositoryId, *branch.UpdateStatus)
+								}
+							}
+						}
+					}
+					defer wg.Done()
+				}()
 			}
 			wg.Wait()
-			//CreateBranch(gitClient,ctx,projname,name,GetCommitIdBranch(client,ctx,project,name),*branches)
 		}
-		fmt.Println(createdrepobranches)
+		//for _, repo := range repositories {
+		//	for k, v := range createdrepobranches {
+		//		for _, branch := range *repo.Branches {
+		//			if Find(v,branch) == false {
+		//				//CreateBranches(gitClient,ctx,projname,repo.Name,GetCommitIdBranch(gitClient,ctx,projname,repo.Name),*branches)
+		//				branchresponse, err := gitClient.UpdateRefs(ctx, git.UpdateRefsArgs{
+		//					RefUpdates: &[]git.GitRefUpdate{{
+		//						IsLocked:    &islocked,
+		//						Name:        &branch,
+		//						OldObjectId: &oldobjectid,
+		//						NewObjectId: GetCommitIdBranch(gitClient,ctx,projname,&k),
+		//					},
+		//					},
+		//					RepositoryId: &k,
+		//					Project:      projname,
+		//				})
+		//				if err != nil {
+		//					log.Fatalf("There was some error creating the tag %v", err)
+		//				}
+		//				for _, branch := range (*branchresponse) {
+		//					fmt.Printf("The branch %s from  repo %v was created and it's success status is  %v\n", *branch.Name,*branch.RepositoryId, *branch.UpdateStatus)
+		//				}
+		//			}
+		//		}
+		//	}
+		//}
+		//os.Exit(1)
 		repoids := make([]PolicyRepoIdAndBranch,len(repos))
 		reposLength := len(repos)
 		wg.Add(reposLength)
