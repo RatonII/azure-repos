@@ -65,71 +65,70 @@ func main() {
 		// Get All existing repos for comparation
 		existingrepos := GetAllRepos(gitClient,ctx,projname)
 		repos := []Repo{}
+		branchesrepos := map[string]string{}
 		for _, repo := range repositories {
 			if Find(existingrepos,*repo.Name) == false {
 				repos = append(repos,repo)
-				//go CreateRepos(gitClient, ctx, username, personalAccessToken, projname, repo.Name, repo.Branches,repoids,i,&wg)
 			} else {
-				//go func() {
 					for k,v := range GetCreatedReposBranches(gitClient,ctx,projname,repo.Name) {
-						//wg.Add(len(*repo.Branches)*6)
 						for _, branch := range *repo.Branches {
 							if Find(v,branch) == false {
-								wg.Add(6)
-								r, err := gitClient.GetRepository(ctx,git.GetRepositoryArgs{
-									RepositoryId: &k,
-									Project:      projname,
-								})
-								if err != nil {
-									panic(err)
-								}
-								go CreateBranch(gitClient,ctx,projname,&k,GetCommitIdBranch(gitClient,ctx,projname,repo.Name),branch, &wg)
-								settings := SettingsPolicy{
-									MinimumApproverCount: 	branchpolicies.MinimumApproverCount,
-									AllowDownvotes:			branchpolicies.AllowDownvotes,
-									BlockLastPusherVote: 	branchpolicies.BlockLastPusherVote,
-									CreatorVoteCounts:		branchpolicies.CreatorVoteCounts,
-									ResetOnSourcePush:		branchpolicies.ResetOnSourcePush,
-									AllowNoFastForward:		branchpolicies.AllowNoFastForward,
-									AllowRebase:			branchpolicies.AllowRebase,
-									AllowRebaseMerge: 		branchpolicies.AllowRebaseMerge,
-									AllowSquash: 			branchpolicies.AllowSquash,
-									RequiredReviewerIds: 	branchpolicies.RequiredReviewerIds,
-									Scope: []Scope{{
-										RepositoryId: *r.Id,
-										RefName:      branch,
-										MatchKind:    "exact",
-									}},
-								}
-								go CreateBranchPolicy(policyClient, ctx,
-									*r.Id, projname,
-									MIN_NUMBER_OF_REWIERES_DISPLAY_NAME,
-									MIN_NUMBER_OF_REWIERES_UUID, settings, true, k, &wg)
-								go CreateBranchPolicy(policyClient, ctx,
-									*r.Id, projname,
-									WORK_ITEM_LINKING_DISPLAY_NAME,
-									WORK_ITEM_LINKING_DISPLAY_UUID, settings, true, k, &wg)
-								go CreateBranchPolicy(policyClient, ctx,
-									*r.Id, projname,
-									COMMENT_REQUIREMENTS_DISPLAY_NAME,
-									COMMENT_REQUIREMENTS_UUID, settings, true, k, &wg)
-								go CreateBranchPolicy(policyClient, ctx,
-									*r.Id, projname,
-									REQUIRE_A_MERGE_STRATEGY_DISPLAY_NAME,
-									REQUIRE_A_MERGE_STRATEGY_UUID, settings, true, k, &wg)
-								go CreateBranchPolicy(policyClient, ctx,
-									*r.Id, projname,
-									REQUIRED_REVIEWERS_DISPLAY_NAME,
-									REQUIRED_REVIEWERS_UUID, settings, false, k, &wg)
+								branchesrepos[k] = branch
 							}
-							wg.Wait()
 						}
 					}
-					//defer wg.Done()
-				//}()
 			}
-			//wg.Wait()
 		}
+		wg.Add(len(branchesrepos) * 6)
+		fmt.Println(branchesrepos)
+		for k,v := range branchesrepos {
+			r, err := gitClient.GetRepository(ctx,git.GetRepositoryArgs{
+				RepositoryId: &k,
+				Project:      projname,
+			})
+			if err != nil {
+				panic(err)
+			}
+			go CreateBranch(gitClient,ctx,projname,&k,GetCommitIdBranch(gitClient,ctx,projname,&k),v, &wg)
+			settings := SettingsPolicy{
+				MinimumApproverCount: 	branchpolicies.MinimumApproverCount,
+				AllowDownvotes:			branchpolicies.AllowDownvotes,
+				BlockLastPusherVote: 	branchpolicies.BlockLastPusherVote,
+				CreatorVoteCounts:		branchpolicies.CreatorVoteCounts,
+				ResetOnSourcePush:		branchpolicies.ResetOnSourcePush,
+				AllowNoFastForward:		branchpolicies.AllowNoFastForward,
+				AllowRebase:			branchpolicies.AllowRebase,
+				AllowRebaseMerge: 		branchpolicies.AllowRebaseMerge,
+				AllowSquash: 			branchpolicies.AllowSquash,
+				RequiredReviewerIds: 	branchpolicies.RequiredReviewerIds,
+				Scope: []Scope{{
+					RepositoryId: *r.Id,
+					RefName:      v,
+					MatchKind:    "exact",
+				}},
+			}
+			go CreateBranchPolicy(policyClient, ctx,
+				*r.Id, projname,
+				MIN_NUMBER_OF_REWIERES_DISPLAY_NAME,
+				MIN_NUMBER_OF_REWIERES_UUID, settings, true, k, &wg)
+			go CreateBranchPolicy(policyClient, ctx,
+				*r.Id, projname,
+				WORK_ITEM_LINKING_DISPLAY_NAME,
+				WORK_ITEM_LINKING_DISPLAY_UUID, settings, true, k, &wg)
+			go CreateBranchPolicy(policyClient, ctx,
+				*r.Id, projname,
+				COMMENT_REQUIREMENTS_DISPLAY_NAME,
+				COMMENT_REQUIREMENTS_UUID, settings, true, k, &wg)
+			go CreateBranchPolicy(policyClient, ctx,
+				*r.Id, projname,
+				REQUIRE_A_MERGE_STRATEGY_DISPLAY_NAME,
+				REQUIRE_A_MERGE_STRATEGY_UUID, settings, true, k, &wg)
+			go CreateBranchPolicy(policyClient, ctx,
+				*r.Id, projname,
+				REQUIRED_REVIEWERS_DISPLAY_NAME,
+				REQUIRED_REVIEWERS_UUID, settings, false, k, &wg)
+		}
+		wg.Wait()
 		repoids := make([]PolicyRepoIdAndBranch,len(repos))
 		reposLength := len(repos)
 		wg.Add(reposLength)
