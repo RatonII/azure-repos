@@ -191,6 +191,24 @@ func GetAllRepos(client git.Client,ctx context.Context,
 	return existingrepos
 }
 
+func GetCreatedReposBranches(client git.Client,ctx context.Context,
+					project *string, reponame *string,
+					repobranches []map[string][]string,wg *sync.WaitGroup) {
+	defer wg.Done()
+	createdbranches, err := client.GetBranches(ctx, git.GetBranchesArgs{
+		RepositoryId:          reponame,
+		Project:               project,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	branches := make([]string,len(*createdbranches))
+	for _, branch := range *createdbranches {
+		branches = append( branches,*branch.Name)
+	}
+	repobranches = append(repobranches, map[string][]string{*reponame: branches})
+
+}
 
 func CreateRepos(client git.Client,ctx context.Context,
 	username string, password string,

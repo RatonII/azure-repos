@@ -61,11 +61,18 @@ func main() {
 		// Get All existing repos for comparation
 		existingrepos := GetAllRepos(gitClient,ctx,projname)
 		repos := []Repo{}
+		createdrepobranches := make([]map[string][]string,len(repositories))
 		for _, repo := range repositories {
 			if Find(existingrepos,*repo.Name) == false {
 					repos = append(repos,repo)
+			} else {
+				wg.Add(1)
+				go GetCreatedReposBranches(gitClient,ctx,projname,repo.Name,createdrepobranches,&wg)
 			}
+			wg.Wait()
+			//CreateBranch(gitClient,ctx,projname,name,GetCommitIdBranch(client,ctx,project,name),*branches)
 		}
+		fmt.Println(createdrepobranches)
 		repoids := make([]PolicyRepoIdAndBranch,len(repos))
 		reposLength := len(repos)
 		wg.Add(reposLength)
