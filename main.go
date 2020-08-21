@@ -58,74 +58,78 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		policyClient, err := policy.NewClient(ctx, connection)
+		if err != nil {
+			log.Fatal(err)
+		}
 		// Get All existing repos for comparation
 		existingrepos := GetAllRepos(gitClient,ctx,projname)
-		oldobjectid := "0000000000000000000000000000000000000000"
-		islocked := false
 		repos := []Repo{}
-		createdrepobranches := map[string][]string{}
 		for _, repo := range repositories {
 			if Find(existingrepos,*repo.Name) == false {
-					repos = append(repos,repo)
+				repos = append(repos,repo)
+				//go CreateRepos(gitClient, ctx, username, personalAccessToken, projname, repo.Name, repo.Branches,repoids,i,&wg)
 			} else {
-				wg.Add(1)
-				go func() {
-					for k,v := range GetCreatedReposBranches(gitClient,ctx,projname,repo.Name,createdrepobranches) {
+				//go func() {
+					for k,v := range GetCreatedReposBranches(gitClient,ctx,projname,repo.Name) {
+						//wg.Add(len(*repo.Branches)*6)
 						for _, branch := range *repo.Branches {
 							if Find(v,branch) == false {
-								//CreateBranches(gitClient,ctx,projname,repo.Name,GetCommitIdBranch(gitClient,ctx,projname,repo.Name),*branches)
-								branchresponse, err := gitClient.UpdateRefs(ctx, git.UpdateRefsArgs{
-									RefUpdates: &[]git.GitRefUpdate{{
-										IsLocked:    &islocked,
-										Name:        &branch,
-										OldObjectId: &oldobjectid,
-										NewObjectId: GetCommitIdBranch(gitClient,ctx,projname,&k),
-									},
-									},
+								wg.Add(6)
+								r, err := gitClient.GetRepository(ctx,git.GetRepositoryArgs{
 									RepositoryId: &k,
 									Project:      projname,
 								})
 								if err != nil {
-									log.Fatalf("There was some error creating the tag %v", err)
+									panic(err)
 								}
-								for _, branch := range (*branchresponse) {
-									fmt.Printf("The branch %s from  repo %v was created and it's success status is  %v\n", *branch.Name,*branch.RepositoryId, *branch.UpdateStatus)
+								go CreateBranch(gitClient,ctx,projname,&k,GetCommitIdBranch(gitClient,ctx,projname,repo.Name),branch, &wg)
+								settings := SettingsPolicy{
+									MinimumApproverCount: 	branchpolicies.MinimumApproverCount,
+									AllowDownvotes:			branchpolicies.AllowDownvotes,
+									BlockLastPusherVote: 	branchpolicies.BlockLastPusherVote,
+									CreatorVoteCounts:		branchpolicies.CreatorVoteCounts,
+									ResetOnSourcePush:		branchpolicies.ResetOnSourcePush,
+									AllowNoFastForward:		branchpolicies.AllowNoFastForward,
+									AllowRebase:			branchpolicies.AllowRebase,
+									AllowRebaseMerge: 		branchpolicies.AllowRebaseMerge,
+									AllowSquash: 			branchpolicies.AllowSquash,
+									RequiredReviewerIds: 	branchpolicies.RequiredReviewerIds,
+									Scope: []Scope{{
+										RepositoryId: *r.Id,
+										RefName:      branch,
+										MatchKind:    "exact",
+									}},
 								}
+								go CreateBranchPolicy(policyClient, ctx,
+									*r.Id, projname,
+									MIN_NUMBER_OF_REWIERES_DISPLAY_NAME,
+									MIN_NUMBER_OF_REWIERES_UUID, settings, true, k, &wg)
+								go CreateBranchPolicy(policyClient, ctx,
+									*r.Id, projname,
+									WORK_ITEM_LINKING_DISPLAY_NAME,
+									WORK_ITEM_LINKING_DISPLAY_UUID, settings, true, k, &wg)
+								go CreateBranchPolicy(policyClient, ctx,
+									*r.Id, projname,
+									COMMENT_REQUIREMENTS_DISPLAY_NAME,
+									COMMENT_REQUIREMENTS_UUID, settings, true, k, &wg)
+								go CreateBranchPolicy(policyClient, ctx,
+									*r.Id, projname,
+									REQUIRE_A_MERGE_STRATEGY_DISPLAY_NAME,
+									REQUIRE_A_MERGE_STRATEGY_UUID, settings, true, k, &wg)
+								go CreateBranchPolicy(policyClient, ctx,
+									*r.Id, projname,
+									REQUIRED_REVIEWERS_DISPLAY_NAME,
+									REQUIRED_REVIEWERS_UUID, settings, false, k, &wg)
 							}
+							wg.Wait()
 						}
 					}
-					defer wg.Done()
-				}()
+					//defer wg.Done()
+				//}()
 			}
-			wg.Wait()
+			//wg.Wait()
 		}
-		//for _, repo := range repositories {
-		//	for k, v := range createdrepobranches {
-		//		for _, branch := range *repo.Branches {
-		//			if Find(v,branch) == false {
-		//				//CreateBranches(gitClient,ctx,projname,repo.Name,GetCommitIdBranch(gitClient,ctx,projname,repo.Name),*branches)
-		//				branchresponse, err := gitClient.UpdateRefs(ctx, git.UpdateRefsArgs{
-		//					RefUpdates: &[]git.GitRefUpdate{{
-		//						IsLocked:    &islocked,
-		//						Name:        &branch,
-		//						OldObjectId: &oldobjectid,
-		//						NewObjectId: GetCommitIdBranch(gitClient,ctx,projname,&k),
-		//					},
-		//					},
-		//					RepositoryId: &k,
-		//					Project:      projname,
-		//				})
-		//				if err != nil {
-		//					log.Fatalf("There was some error creating the tag %v", err)
-		//				}
-		//				for _, branch := range (*branchresponse) {
-		//					fmt.Printf("The branch %s from  repo %v was created and it's success status is  %v\n", *branch.Name,*branch.RepositoryId, *branch.UpdateStatus)
-		//				}
-		//			}
-		//		}
-		//	}
-		//}
-		//os.Exit(1)
 		repoids := make([]PolicyRepoIdAndBranch,len(repos))
 		reposLength := len(repos)
 		wg.Add(reposLength)
@@ -133,10 +137,6 @@ func main() {
 			go CreateRepos(gitClient, ctx, username, personalAccessToken, projname, repo.Name, repo.Branches,repoids,i,&wg)
 		}
 		wg.Wait()
-		policyClient, err := policy.NewClient(ctx, connection)
-		if err != nil {
-			log.Fatal(err)
-		}
 		for _, needs := range repoids {
 			wg.Add(len(needs.Branches) * 5) //5 represents the number of times we run CreateBranchPolicy for differents policies types
 			for _, branch := range needs.Branches {
@@ -159,45 +159,29 @@ func main() {
 				}
 				go CreateBranchPolicy(policyClient, ctx,
 					needs.RepoId, projname,
-					needs.Branches, MIN_NUMBER_OF_REWIERES_DISPLAY_NAME,
+					MIN_NUMBER_OF_REWIERES_DISPLAY_NAME,
 					MIN_NUMBER_OF_REWIERES_UUID, settings, true, needs.RepoName, &wg)
 				go CreateBranchPolicy(policyClient, ctx,
 					needs.RepoId, projname,
-					needs.Branches, WORK_ITEM_LINKING_DISPLAY_NAME,
+					WORK_ITEM_LINKING_DISPLAY_NAME,
 					WORK_ITEM_LINKING_DISPLAY_UUID, settings, true, needs.RepoName, &wg)
 				go CreateBranchPolicy(policyClient, ctx,
 					needs.RepoId, projname,
-					needs.Branches, COMMENT_REQUIREMENTS_DISPLAY_NAME,
+					COMMENT_REQUIREMENTS_DISPLAY_NAME,
 					COMMENT_REQUIREMENTS_UUID, settings, true, needs.RepoName, &wg)
 				go CreateBranchPolicy(policyClient, ctx,
 					needs.RepoId, projname,
-					needs.Branches, REQUIRE_A_MERGE_STRATEGY_DISPLAY_NAME,
+					REQUIRE_A_MERGE_STRATEGY_DISPLAY_NAME,
 					REQUIRE_A_MERGE_STRATEGY_UUID, settings, true, needs.RepoName, &wg)
 				go CreateBranchPolicy(policyClient, ctx,
 					needs.RepoId, projname,
-					needs.Branches, REQUIRED_REVIEWERS_DISPLAY_NAME,
+					REQUIRED_REVIEWERS_DISPLAY_NAME,
 					REQUIRED_REVIEWERS_UUID, settings, false, needs.RepoName, &wg)
 
 			}
 			wg.Wait()
 		}
-		//baserepo := "test"
-		SavePoliciesStates(username, personalAccessToken)
-		//gitClient.CreatePush(ctx, git.CreatePushArgs{
-		//	Push:         &git.GitPush{
-		//		Links:             nil,
-		//		Date:              nil,
-		//		PushCorrelationId: nil,
-		//		PushedBy:          nil,
-		//		PushId:            nil,
-		//		Url:               nil,
-		//		Commits:           nil,
-		//		RefUpdates:        nil,
-		//		Repository:        nil,
-		//	},
-		//	RepositoryId: &baserepo,
-		//	Project:      projname,
-		//})
+		os.Exit(1)
 		var files []string
 		policiesfolder := "created-policies"
 		err = filepath.Walk(policiesfolder, func(path string, info os.FileInfo, err error) error {

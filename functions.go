@@ -192,8 +192,7 @@ func GetAllRepos(client git.Client,ctx context.Context,
 }
 
 func GetCreatedReposBranches(client git.Client,ctx context.Context,
-					project *string, reponame *string,
-					createdrepos map[string][]string) map[string][]string{
+					project *string, reponame *string) map[string][]string{
 	createdbranches, err := client.GetBranches(ctx, git.GetBranchesArgs{
 		RepositoryId:          reponame,
 		Project:               project,
@@ -203,10 +202,9 @@ func GetCreatedReposBranches(client git.Client,ctx context.Context,
 	}
 	branches := make([]string,len(*createdbranches))
 	for _, branch := range *createdbranches {
-		branches = append( branches,*branch.Name)
+		branches = append( branches,fmt.Sprintf("refs/heads/%s",*branch.Name))
 	}
-	createdrepos[*reponame] = branches
-	return createdrepos
+	return map[string][]string{*reponame: branches}
 }
 
 func CreateRepos(client git.Client,ctx context.Context,
@@ -262,9 +260,25 @@ func CreateBranches(client git.Client,ctx context.Context,
 
 func CreateBranch(client git.Client,ctx context.Context,
 	project *string,repo *string,newobjectid *string,
-	branches []string)  {
-	//oldobjectid := "0000000000000000000000000000000000000000"
-	//islocked := false
+	branch string, wg *sync.WaitGroup)  {
+	oldobjectid := "0000000000000000000000000000000000000000"
+	islocked := false
+	defer wg.Done()
+	_, err := client.UpdateRefs(ctx, git.UpdateRefsArgs{
+		RefUpdates: &[]git.GitRefUpdate{{
+			IsLocked:    &islocked,
+			Name:        &branch,
+			OldObjectId: &oldobjectid,
+			NewObjectId: GetCommitIdBranch(client,ctx,project,repo),
+		},
+		},
+		RepositoryId: repo,
+		Project:      project,
+	})
+	if err != nil {
+		log.Fatalf("There was some error creating the tag %v", err)
+	}
+	fmt.Printf("The branch %s on repository %s  was created\n",branch, *repo)
 }
 
 
@@ -280,15 +294,14 @@ func GetCommitIdBranch(client git.Client,ctx context.Context,
 	if err != nil {
 		log.Fatalf("There was some error creating the tag %v", err)
 	}
-	fmt.Printf("The branch %s  was created and it's last commit  is  %v\n", *branch.Name,*branch.Commit.CommitId)
 	return branch.Commit.CommitId
 }
 
 func CreateBranchPolicy(client policy.Client,ctx context.Context,
 					repoid uuid.UUID, project *string,
-					branches []string,typedn string,
-					typeuuid string,settings SettingsPolicy,
-					isBlocking bool,reponame string,wg *sync.WaitGroup)  {
+					typedn string,typeuuid string,
+					settings SettingsPolicy,isBlocking bool,
+					reponame string,wg *sync.WaitGroup)  {
 	defer wg.Done()
 	isdeleted := false
 	isenabled := true
@@ -323,7 +336,6 @@ func CreateBranchPolicy(client policy.Client,ctx context.Context,
 	if err != nil {
 		log.Fatal(err)
 	}
-	//polbranches := fmt.Sprintf("[%s]",strings.Join(branches,","))
 	if _, err := f.Write([]byte(fmt.Sprintf("- policyid: %d\n" +
 													"  repoid: %v\n" +
 													"  branch: %s\n" +

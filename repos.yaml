@@ -16,12 +16,12 @@ repositories:
   - name: YamlPipelineTest4
     branches:
       - "refs/heads/dev"
-      - "refs/heads/test"
+#      - "refs/heads/test"
 #      - "refs/heads/qa"
 #      - "refs/heads/newsomething"
-#  - name: testnewreposshit
-#    branches:
-#      - "refs/heads/dev"
+  - name: testnewreposshit
+    branches:
+      - "refs/heads/dev"
 #      - "refs/heads/test"
 #  - name: dothatshitdoit
 #    branches:
