@@ -249,10 +249,9 @@ func CreateBranches(client git.Client,ctx context.Context,
 
 func CreateBranch(client git.Client,ctx context.Context,
 	project *string,repo *string,newobjectid *string,
-	branch string, wg *sync.WaitGroup)  {
+	branch string)  {
 	oldobjectid := "0000000000000000000000000000000000000000"
 	islocked := false
-	defer wg.Done()
 	_, err := client.UpdateRefs(ctx, git.UpdateRefsArgs{
 		RefUpdates: &[]git.GitRefUpdate{{
 			IsLocked:    &islocked,
