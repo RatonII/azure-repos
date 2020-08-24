@@ -79,17 +79,19 @@ func main() {
 					}
 			}
 		}
-		wg.Add(len(branchesrepos) * 6)
+		wg.Add(len(branchesrepos) * 5)
 		fmt.Println(branchesrepos)
 		for k,v := range branchesrepos {
 			r, err := gitClient.GetRepository(ctx,git.GetRepositoryArgs{
 				RepositoryId: &k,
 				Project:      projname,
 			})
+			fmt.Println(k)
+			fmt.Println(v)
 			if err != nil {
 				panic(err)
 			}
-			go CreateBranch(gitClient,ctx,projname,&k,GetCommitIdBranch(gitClient,ctx,projname,&k),v, &wg)
+			CreateBranch(gitClient,ctx,projname,&k,GetCommitIdBranch(gitClient,ctx,projname,&k),v, &wg)
 			settings := SettingsPolicy{
 				MinimumApproverCount: 	branchpolicies.MinimumApproverCount,
 				AllowDownvotes:			branchpolicies.AllowDownvotes,
@@ -180,6 +182,7 @@ func main() {
 			}
 			wg.Wait()
 		}
+		os.Exit(1)
 		var files []string
 		policiesfolder := "created-policies"
 		err = filepath.Walk(policiesfolder, func(path string, info os.FileInfo, err error) error {
