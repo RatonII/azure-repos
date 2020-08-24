@@ -182,6 +182,7 @@ func main() {
 			}
 			wg.Wait()
 		}
+		SavePoliciesStates(username, personalAccessToken)
 		var files []string
 		policiesfolder := "created-policies"
 		err = filepath.Walk(policiesfolder, func(path string, info os.FileInfo, err error) error {
