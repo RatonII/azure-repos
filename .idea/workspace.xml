@@ -10,18 +10,13 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d95ae865-b79a-4ba5-9169-1edbbd4a43a7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azure-repos.exe" beforeDir="false" afterPath="$PROJECT_DIR$/azure-repos.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/repos.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/repos.yaml" afterDir="false" />
-    </list>
+    <list default="true" id="d95ae865-b79a-4ba5-9169-1edbbd4a43a7" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="GOROOT" path="C:\Go" />
+  <component name="GOROOT" path="/usr/local/go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -50,18 +45,6 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="2" />
   </component>
@@ -70,15 +53,18 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="COLUMN_ORDER" />
-            </State>
+            <State />
           </value>
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="2676" y="451" key="#GOROOT" timestamp="1598250081823">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2676" y="451" key="#GOROOT/1920.0.1920.1080/0.0.1920.1040@1920.0.1920.1080" timestamp="1598250081823" />
     <state x="2610" y="320" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1596726935592">
       <screen x="1920" y="0" width="1920" height="1080" />
     </state>
