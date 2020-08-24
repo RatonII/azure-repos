@@ -113,11 +113,6 @@ func SavePoliciesStates(username string, password string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//
-	//_, err = d.CreateRemote(&config.RemoteConfig{
-	//	Name: REMOTENAME,
-	//	URLs: []string{CREATEREPOSURL},
-	//})
 	w, err := d.Worktree()
 	if err != nil {
 		log.Fatal(err)
@@ -143,12 +138,6 @@ func SavePoliciesStates(username string, password string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//err = w.Checkout(&gt.CheckoutOptions{
-	//	Branch: "marius-add-pipeline",
-	//})
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
 	err = w.Pull(&gt.PullOptions{
 		Auth:               &http.BasicAuth{
 			Username: username,
