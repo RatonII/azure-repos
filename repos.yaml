@@ -17,7 +17,7 @@ repositories:
     branches:
       - "refs/heads/dev"
       - "refs/heads/test"
-#      - "refs/heads/qa"
+      - "refs/heads/qa"
 #      - "refs/heads/newsomething"
   - name: testnewreposshit
     branches:
